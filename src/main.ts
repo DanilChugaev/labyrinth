@@ -1,17 +1,14 @@
 import './style.css'
-import { setupCounter } from './counter.ts'
-import { getArr } from './generator.ts'
+import { setupCanvas } from './canvas.ts'
 import labyrinth from '/labyrinth.svg'
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <div>
-    <img class="logo" src="${labyrinth}" alt="Labyrinth icon" width="100">
+  <div class="header">
+    <img class="logo" src="${labyrinth}" alt="Labyrinth icon" width="50">
     <h1>Labyrinth</h1>
-    <pre>${getArr()}</pre>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
   </div>
+  
+  <canvas id="canvas"></canvas>
 `
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+setupCanvas(document.querySelector<HTMLCanvasElement>('#canvas')!)
