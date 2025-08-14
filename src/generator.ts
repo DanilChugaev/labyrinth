@@ -1,40 +1,79 @@
-class UniqueRandomNumberGenerator {
-  private used: Set<number> = new Set();
-  private min: number;
-  private max: number;
+import type { Labyrinth } from './types.ts';
+import { UniqueRandomNumberGenerator } from './UniqueRandomNumberGenerator.ts';
 
-  constructor(min: number, max: number) {
-    this.min = Math.ceil(min);
-    this.max = Math.floor(max);
+function setXNeighbours(obj: Labyrinth, y: number, x: number, xCoord: number) {
+  if (!obj[y][x].neighbours[y]) {
+    obj[y][x].neighbours[y] = {}
   }
 
-  getRandomNumber(): number {
-    const rangeSize = this.max - this.min + 1;
-
-    if (this.used.size >= rangeSize) {
-      throw new Error("All unique numbers in the range have been exhausted");
-    }
-
-    let num: number;
-
-    do {
-      num = Math.floor(Math.random() * rangeSize) + this.min;
-    } while (this.used.has(num));
-
-    this.used.add(num);
-
-    return num;
+  obj[y][x].neighbours[y][xCoord] = {
+    y,
+    x: xCoord,
+    weight: obj[y][xCoord].weight,
+    neighbours: {}, // это тут не нужно, надо типизацию поправить
   }
 }
 
-export function getArr(size: number) {
-  const length = size*size
-  const arr = []
-  const generator = new UniqueRandomNumberGenerator(1, length * 2)
-
-  for (let i = 0; i < length; i++) {
-    arr[i] = generator.getRandomNumber()
+function setYNeighbours(obj: Labyrinth, y: number, x: number, yCoord: number) {
+  if (!obj[y][x].neighbours[yCoord]) {
+    obj[y][x].neighbours[yCoord] = {}
   }
 
-  return arr
+  obj[y][x].neighbours[yCoord][x] = {
+    y: yCoord,
+    x,
+    weight: obj[yCoord][x].weight,
+    neighbours: {}, // это тут не нужно, надо типизацию поправить
+  }
+}
+
+export function generateLabyrinth(size: number): Labyrinth {
+  const length = size*size
+  const generator = new UniqueRandomNumberGenerator(1, length * 2)
+
+  const obj: Labyrinth = {}
+
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      if (!obj[y]) {
+        obj[y] = {};
+      }
+
+      obj[y][x] = {
+        y,
+        x,
+        weight: generator.getRandomNumber(),
+        neighbours: {},
+      };
+    }
+  }
+
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const top = y - 1;
+      const right = x + 1;
+      const bottom = y + 1;
+      const left = x - 1;
+
+      if (top >= 0) {
+        setYNeighbours(obj, y, x, top)
+      }
+
+      if (right < size) {
+        setXNeighbours(obj, y, x, right)
+      }
+
+      if (bottom < size) {
+        setYNeighbours(obj, y, x, bottom)
+      }
+
+      if (left >= 0) {
+        setXNeighbours(obj, y, x, left)
+      }
+    }
+  }
+
+  console.log(obj)
+
+  return obj
 }
