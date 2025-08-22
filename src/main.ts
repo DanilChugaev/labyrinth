@@ -1,6 +1,7 @@
-import './style.css'
-import { setupCanvas } from './canvas.ts'
-import labyrinth from '/labyrinth.svg'
+import './style.css';
+import { setupCanvas } from './canvas.ts';
+import { setupButton } from './button.ts';
+import labyrinth from '/labyrinth.svg';
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div class="header">
@@ -9,6 +10,9 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   </div>
   
   <canvas id="canvas"></canvas>
+  
+  <button id="button" type="button">Новый лабиринт</button>
 `
 
-setupCanvas(document.querySelector<HTMLCanvasElement>('#canvas')!)
+const { redrawLabyrinth } = setupCanvas(document.querySelector<HTMLCanvasElement>('#canvas')!);
+setupButton(document.querySelector<HTMLButtonElement>('#button')!, redrawLabyrinth);

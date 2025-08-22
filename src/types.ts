@@ -1,10 +1,20 @@
-export interface Cell {
-  y: number;
-  x: number;
-  weight: number;
-  neighbours: Labyrinth;
+interface Border {
+  top: boolean;
+  right: boolean;
+  bottom: boolean;
+  left: boolean;
 }
 
-export type Y = number
-export type X = number
-export type Labyrinth = Record<Y, Record<X, Cell>>
+export type Y = number;
+export type X = number;
+
+export interface Cell {
+  y: Y;
+  x: X;
+  weight: number;
+  isVisited: boolean;
+  neighbours?: Labyrinth;
+  borders?: Border;
+}
+
+export type Labyrinth = Record<Y, Record<X, Cell>>;
