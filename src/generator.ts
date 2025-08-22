@@ -81,7 +81,7 @@ function setNeighbours(obj: Labyrinth, size: number) {
   }
 }
 
-function createPath(obj: Labyrinth): Labyrinth {
+function createBorders(obj: Labyrinth): Labyrinth {
   const unvisited: Labyrinth = obj;
   const visited: Labyrinth = {};
 
@@ -175,7 +175,7 @@ export function generateLabyrinth(size: number): Labyrinth {
 
   generateBaseStructure(obj, size);
   setNeighbours(obj, size);
-  obj = createPath(obj)
+  obj = createBorders(obj)
 
   console.log(obj);
 

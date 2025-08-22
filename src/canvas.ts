@@ -1,11 +1,14 @@
 import { generateLabyrinth } from './generator.ts'
 import type { Labyrinth } from './types.ts';
+import { getLabyrinthSize } from './storage.ts';
 
-function drawLabyrinth(canvasSize: number, context: CanvasRenderingContext2D) {
-  const size = 11
+function draw(canvasSize: number, context: CanvasRenderingContext2D) {
+  const size = Number(getLabyrinthSize());
   const cellSize = Math.floor(canvasSize / size);
   const obj: Labyrinth = generateLabyrinth(size);
 
+  // context.fillStyle = "#ffffff"; // Фон канваса
+  // context.fillRect(0, 0, canvasSize, canvasSize);
   context.lineWidth = 2;
 
   for (let y = 0; y < size; y++) {
@@ -45,22 +48,27 @@ function drawLabyrinth(canvasSize: number, context: CanvasRenderingContext2D) {
 
 export function setupCanvas(element: HTMLCanvasElement) {
   const { innerWidth: windowWidth, innerHeight: windowHeight } = window;
-  const coef = 1.3;
-  const canvasSize = windowWidth < windowHeight ? windowWidth / coef : windowHeight / coef;
+  const coef = 1.4;
+  // todo: делать такие размеры, чтобы границы крайних клеток заезжали внутрь
+  const canvasSize = Math.round(windowWidth < windowHeight ? windowWidth / coef : windowHeight / coef);
 
   element.width = canvasSize;
   element.height = canvasSize;
 
   const context = element.getContext("2d")!;
 
+  const drawLabyrinth = () => draw(canvasSize, context);
+
   const redrawLabyrinth = () => {
-    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
-    drawLabyrinth(canvasSize, context);
+    // context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+    // drawLabyrinth(canvasSize, context);
+    window.location.reload();
+    // context.fillStyle = "#ffffff"; // Фон канваса
+    // context.fillRect(0, 0, canvasSize, canvasSize);
   };
 
-  drawLabyrinth(canvasSize, context);
-
   return {
+    drawLabyrinth,
     redrawLabyrinth,
   }
 }
