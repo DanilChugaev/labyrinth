@@ -1,4 +1,4 @@
-import type { Cell, Labyrinth } from './types.ts';
+import type { Border, Cell, Labyrinth } from './types.ts';
 import { UniqueRandomNumberGenerator } from './UniqueRandomNumberGenerator.ts';
 
 function generateBaseStructure(obj: Labyrinth, size: number) {
@@ -55,12 +55,17 @@ function setYNeighbour(obj: Labyrinth, y: number, x: number, yCoord: number) {
 }
 
 function setNeighbours(obj: Labyrinth, size: number) {
+  let top = 0;
+  let right = 0;
+  let bottom = 0;
+  let left = 0;
+
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
-      const top = y - 1;
-      const right = x + 1;
-      const bottom = y + 1;
-      const left = x - 1;
+      top = y - 1;
+      right = x + 1;
+      bottom = y + 1;
+      left = x - 1;
 
       if (top >= 0) {
         setYNeighbour(obj, y, x, top);
@@ -93,6 +98,12 @@ function createBorders(obj: Labyrinth): Labyrinth {
 
   let prevY = 0;
   let prevX = 0;
+  let newY = 0;
+  let newX = 0;
+  let isXEqual = false;
+  let isYEqual = false;
+  let prevBorders: Border | undefined = undefined;
+  let newBorders: Border | undefined = undefined;
 
   // тут надо запустить цикл с условием, пока в unvisited еще есть вершины
   while (Object.keys(unvisited).length) {
@@ -129,8 +140,8 @@ function createBorders(obj: Labyrinth): Labyrinth {
     minWeightVertex!.isVisited = true;
 
     // переносим найденную вершину в посещенные
-    const newY = minWeightVertex!.y;
-    const newX = minWeightVertex!.x;
+    newY = minWeightVertex!.y;
+    newX = minWeightVertex!.x;
 
     if (!visited[newY]) {
       visited[newY] = {};
@@ -138,24 +149,29 @@ function createBorders(obj: Labyrinth): Labyrinth {
 
     visited[newY][newX] = unvisited[newY][newX];
 
-    if (newY > prevY && newX === prevX) {
-      visited[prevY][prevX]!.borders!.bottom = false;
-      visited[newY][newX]!.borders!.top = false;
+    isXEqual = newX === prevX;
+    isYEqual = newY === prevY;
+    prevBorders = visited[prevY][prevX]!.borders!;
+    newBorders = visited[newY][newX]!.borders!;
+
+    if (newY > prevY && isXEqual) {
+      prevBorders.bottom = false;
+      newBorders.top = false;
     }
 
-    if (newY < prevY && newX === prevX) {
-      visited[prevY][prevX]!.borders!.top = false;
-      visited[newY][newX]!.borders!.bottom = false;
+    if (newY < prevY && isXEqual) {
+      prevBorders.top = false;
+      newBorders.bottom = false;
     }
 
-    if (newY === prevY && newX > prevX) {
-      visited[prevY][prevX]!.borders!.right = false;
-      visited[newY][newX]!.borders!.left = false;
+    if (isYEqual && newX > prevX) {
+      prevBorders.right = false;
+      newBorders.left = false;
     }
 
-    if (newY === prevY && newX < prevX) {
-      visited[prevY][prevX]!.borders!.left = false;
-      visited[newY][newX]!.borders!.right = false;
+    if (isYEqual && newX < prevX) {
+      prevBorders.left = false;
+      newBorders.right = false;
     }
 
     visited[newY][newX].isVisited = true;
@@ -177,7 +193,7 @@ export function generateLabyrinth(size: number): Labyrinth {
   setNeighbours(obj, size);
   obj = createBorders(obj);
 
-  console.log(obj);
+  // console.log(obj);
 
   return obj;
 }

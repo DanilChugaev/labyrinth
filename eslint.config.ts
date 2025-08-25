@@ -12,11 +12,12 @@ export default defineConfig([
       prettier,
       '@typescript-eslint': tseslint.plugin,
     },
-    extends: ['js/recommended', 'plugin:prettier/recommended'],
+    extends: ['js/recommended'],
     languageOptions: { globals: globals.browser },
     rules: {
       'prettier/prettier': 'error',
     },
+    ignores: ['node_modules', 'dist', 'build', '*.d.ts'],
   },
   tseslint.configs.recommended,
 ]);

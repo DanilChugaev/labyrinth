@@ -1,4 +1,4 @@
-interface Border {
+export interface Border {
   top: boolean;
   right: boolean;
   bottom: boolean;

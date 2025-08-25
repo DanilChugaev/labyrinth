@@ -11,39 +11,50 @@ function draw({
   cellSize: number;
   context: CanvasRenderingContext2D;
 }) {
+  const start = performance.now();
   const obj: Labyrinth = generateLabyrinth(size);
+  const end = performance.now();
+
+  console.log(`Время генерации: ${end - start} мс`);
 
   context.lineWidth = 2;
 
+  let newX = 0;
+  let newY = 0;
+  let newXPlus1 = 0;
+  let newYPlus1 = 0;
+
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
-      const newX = x * cellSize;
-      const newY = y * cellSize;
+      newX = x * cellSize;
+      newY = y * cellSize;
+      newXPlus1 = (x + 1) * cellSize;
+      newYPlus1 = (y + 1) * cellSize;
 
       context.fillStyle = '#f3f4f6';
       context.fillRect(newX, newY, cellSize, cellSize);
 
       if (obj[y][x].borders!.right) {
-        context.moveTo((x + 1) * cellSize, y * cellSize);
-        context.lineTo((x + 1) * cellSize, (y + 1) * cellSize);
+        context.moveTo(newXPlus1, newY);
+        context.lineTo(newXPlus1, newYPlus1);
         context.stroke();
       }
 
       if (obj[y][x].borders!.left) {
-        context.moveTo(x * cellSize, y * cellSize);
-        context.lineTo(x * cellSize, (y + 1) * cellSize);
+        context.moveTo(newX, newY);
+        context.lineTo(newX, newYPlus1);
         context.stroke();
       }
 
       if (obj[y][x].borders!.top) {
-        context.moveTo(x * cellSize, y * cellSize);
-        context.lineTo((x + 1) * cellSize, y * cellSize);
+        context.moveTo(newX, newY);
+        context.lineTo(newXPlus1, newY);
         context.stroke();
       }
 
       if (obj[y][x].borders!.bottom) {
-        context.moveTo(x * cellSize, (y + 1) * cellSize);
-        context.lineTo((x + 1) * cellSize, (y + 1) * cellSize);
+        context.moveTo(newX, newYPlus1);
+        context.lineTo(newXPlus1, newYPlus1);
         context.stroke();
       }
     }
