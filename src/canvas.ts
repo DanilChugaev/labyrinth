@@ -1,5 +1,5 @@
 import { generateLabyrinth } from './generator.ts';
-import type { Labyrinth } from './types.ts';
+import type { Border, Labyrinth } from './types.ts';
 import { getLabyrinthSize } from './storage.ts';
 
 function draw({
@@ -23,42 +23,46 @@ function draw({
   let newY = 0;
   let newXPlus1 = 0;
   let newYPlus1 = 0;
+  let borders: Border | undefined = undefined;
 
+  const start2 = performance.now();
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
       newX = x * cellSize;
       newY = y * cellSize;
       newXPlus1 = (x + 1) * cellSize;
       newYPlus1 = (y + 1) * cellSize;
+      borders = obj[y][x].borders!;
 
       context.fillStyle = '#f3f4f6';
       context.fillRect(newX, newY, cellSize, cellSize);
 
-      if (obj[y][x].borders!.right) {
+      if (borders.right) {
         context.moveTo(newXPlus1, newY);
         context.lineTo(newXPlus1, newYPlus1);
-        context.stroke();
       }
 
-      if (obj[y][x].borders!.left) {
+      if (borders.left) {
         context.moveTo(newX, newY);
         context.lineTo(newX, newYPlus1);
-        context.stroke();
       }
 
-      if (obj[y][x].borders!.top) {
+      if (borders.top) {
         context.moveTo(newX, newY);
         context.lineTo(newXPlus1, newY);
-        context.stroke();
       }
 
-      if (obj[y][x].borders!.bottom) {
+      if (borders.bottom) {
         context.moveTo(newX, newYPlus1);
         context.lineTo(newXPlus1, newYPlus1);
-        context.stroke();
       }
+
+      context.stroke();
     }
   }
+  const end2 = performance.now();
+
+  console.log(`Время отрисовки: ${end2 - start2} мс`);
 }
 
 export function setupCanvas(element: HTMLCanvasElement) {

@@ -1,3 +1,5 @@
+import { UniqueRandomNumberGenerator } from './UniqueRandomNumberGenerator.ts';
+
 export interface Border {
   top: boolean;
   right: boolean;
@@ -18,3 +20,10 @@ export interface Cell {
 }
 
 export type Labyrinth = Record<Y, Record<X, Cell>>;
+
+export interface NeighbourGeneratorParams {
+  obj: Labyrinth;
+  y: number;
+  x: number;
+  generator: UniqueRandomNumberGenerator;
+}

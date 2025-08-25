@@ -1,4 +1,4 @@
-import type { Border, Cell, Labyrinth } from './types.ts';
+import type { Border, Cell, Labyrinth, NeighbourGeneratorParams } from './types.ts';
 import { UniqueRandomNumberGenerator } from './UniqueRandomNumberGenerator.ts';
 
 function generateBaseStructure(obj: Labyrinth, size: number) {
@@ -11,24 +11,80 @@ function generateBaseStructure(obj: Labyrinth, size: number) {
         obj[y] = {};
       }
 
-      obj[y][x] = {
-        y,
-        x,
-        weight: generator.getRandomNumber(),
-        neighbours: {},
-        isVisited: false,
-        borders: {
-          top: true,
-          right: true,
-          bottom: true,
-          left: true,
-        },
-      };
+      if (!obj[y][x]) {
+        obj[y][x] = {
+          y,
+          x,
+          weight: generator.getRandomNumber(),
+          neighbours: {},
+          isVisited: false,
+          borders: {
+            top: true,
+            right: true,
+            bottom: true,
+            left: true,
+          },
+        };
+      }
+
+      generateNeighbours({ obj, y, x, size, generator });
     }
   }
 }
 
-function setXNeighbour(obj: Labyrinth, y: number, x: number, xCoord: number) {
+function generateNeighbours({
+  obj,
+  y,
+  x,
+  size,
+  generator,
+}: NeighbourGeneratorParams & { size: number }) {
+  const top = y - 1;
+  const right = x + 1;
+  const bottom = y + 1;
+  const left = x - 1;
+
+  if (top >= 0) {
+    generateYNeighbour({ obj, y, x, yCoord: top, generator });
+  }
+
+  if (right < size) {
+    generateXNeighbour({ obj, y, x, xCoord: right, generator });
+  }
+
+  if (bottom < size) {
+    generateYNeighbour({ obj, y, x, yCoord: bottom, generator });
+  }
+
+  if (left >= 0) {
+    generateXNeighbour({ obj, y, x, xCoord: left, generator });
+  }
+}
+
+function generateXNeighbour({
+  obj,
+  y,
+  x,
+  xCoord,
+  generator,
+}: NeighbourGeneratorParams & { xCoord: number }) {
+  if (!obj[y][xCoord]) {
+    // сразу создаем соседа по X координате
+    obj[y][xCoord] = {
+      y,
+      x: xCoord,
+      weight: generator.getRandomNumber(),
+      neighbours: {},
+      isVisited: false,
+      borders: {
+        top: true,
+        right: true,
+        bottom: true,
+        left: true,
+      },
+    };
+  }
+
   if (!obj[y][x].neighbours![y]) {
     obj[y][x].neighbours![y] = {};
   }
@@ -41,7 +97,34 @@ function setXNeighbour(obj: Labyrinth, y: number, x: number, xCoord: number) {
   };
 }
 
-function setYNeighbour(obj: Labyrinth, y: number, x: number, yCoord: number) {
+function generateYNeighbour({
+  obj,
+  y,
+  x,
+  yCoord,
+  generator,
+}: NeighbourGeneratorParams & { yCoord: number }) {
+  if (!obj[yCoord]) {
+    obj[yCoord] = {};
+  }
+
+  if (!obj[yCoord][x]) {
+    // сразу создаем соседа по Y координате
+    obj[yCoord][x] = {
+      y: yCoord,
+      x,
+      weight: generator.getRandomNumber(),
+      neighbours: {},
+      isVisited: false,
+      borders: {
+        top: true,
+        right: true,
+        bottom: true,
+        left: true,
+      },
+    };
+  }
+
   if (!obj[y][x].neighbours![yCoord]) {
     obj[y][x].neighbours![yCoord] = {};
   }
@@ -52,38 +135,6 @@ function setYNeighbour(obj: Labyrinth, y: number, x: number, yCoord: number) {
     weight: obj[yCoord][x].weight,
     isVisited: false,
   };
-}
-
-function setNeighbours(obj: Labyrinth, size: number) {
-  let top = 0;
-  let right = 0;
-  let bottom = 0;
-  let left = 0;
-
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      top = y - 1;
-      right = x + 1;
-      bottom = y + 1;
-      left = x - 1;
-
-      if (top >= 0) {
-        setYNeighbour(obj, y, x, top);
-      }
-
-      if (right < size) {
-        setXNeighbour(obj, y, x, right);
-      }
-
-      if (bottom < size) {
-        setYNeighbour(obj, y, x, bottom);
-      }
-
-      if (left >= 0) {
-        setXNeighbour(obj, y, x, left);
-      }
-    }
-  }
 }
 
 function createBorders(obj: Labyrinth): Labyrinth {
@@ -190,7 +241,6 @@ export function generateLabyrinth(size: number): Labyrinth {
   let obj: Labyrinth = {};
 
   generateBaseStructure(obj, size);
-  setNeighbours(obj, size);
   obj = createBorders(obj);
 
   // console.log(obj);
