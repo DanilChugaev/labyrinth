@@ -10,8 +10,10 @@ export function setupSelect(element: HTMLSelectElement, onChangeSelectionFn: () 
 
   element.value = getLabyrinthSize();
 
-  element.addEventListener('change', (event: any) => {
-    setLabyrinthSize(event.target?.value);
-    onChangeSelectionFn();
+  element.addEventListener('change', (event: Event) => {
+    if (event.target instanceof HTMLSelectElement) {
+      setLabyrinthSize(Number(event.target.value));
+      onChangeSelectionFn();
+    }
   });
 }
