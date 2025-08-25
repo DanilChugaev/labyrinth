@@ -1,15 +1,15 @@
-import { generateLabyrinth } from './generator.ts'
+import { generateLabyrinth } from './generator.ts';
 import type { Labyrinth } from './types.ts';
 import { getLabyrinthSize } from './storage.ts';
 
 function draw({
   size,
   cellSize,
-  context
+  context,
 }: {
-  size: number,
-  cellSize: number,
-  context: CanvasRenderingContext2D,
+  size: number;
+  cellSize: number;
+  context: CanvasRenderingContext2D;
 }) {
   const obj: Labyrinth = generateLabyrinth(size);
 
@@ -20,7 +20,7 @@ function draw({
       const newX = x * cellSize;
       const newY = y * cellSize;
 
-      context.fillStyle = "#f3f4f6";
+      context.fillStyle = '#f3f4f6';
       context.fillRect(newX, newY, cellSize, cellSize);
 
       if (obj[y][x].borders!.right) {
@@ -79,7 +79,7 @@ export function setupCanvas(element: HTMLCanvasElement) {
   element.width = canvasSize;
   element.height = canvasSize;
 
-  const context = element.getContext("2d")!;
+  const context = element.getContext('2d')!;
 
   const drawLabyrinth = () => draw({ size, cellSize, context });
 
@@ -90,5 +90,5 @@ export function setupCanvas(element: HTMLCanvasElement) {
   return {
     drawLabyrinth,
     redrawLabyrinth,
-  }
+  };
 }

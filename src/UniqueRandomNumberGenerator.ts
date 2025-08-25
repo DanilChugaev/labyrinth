@@ -12,7 +12,7 @@ export class UniqueRandomNumberGenerator {
     const rangeSize = this.max - this.min + 1;
 
     if (this.used.size >= rangeSize) {
-      throw new Error("All unique numbers in the range have been exhausted");
+      throw new Error('All unique numbers in the range have been exhausted');
     }
 
     let num: number;

@@ -22,7 +22,7 @@ function generateBaseStructure(obj: Labyrinth, size: number) {
           right: true,
           bottom: true,
           left: true,
-        }
+        },
       };
     }
   }
@@ -38,7 +38,7 @@ function setXNeighbour(obj: Labyrinth, y: number, x: number, xCoord: number) {
     x: xCoord,
     weight: obj[y][xCoord].weight,
     isVisited: false,
-  }
+  };
 }
 
 function setYNeighbour(obj: Labyrinth, y: number, x: number, yCoord: number) {
@@ -51,7 +51,7 @@ function setYNeighbour(obj: Labyrinth, y: number, x: number, yCoord: number) {
     x,
     weight: obj[yCoord][x].weight,
     isVisited: false,
-  }
+  };
 }
 
 function setNeighbours(obj: Labyrinth, size: number) {
@@ -129,11 +129,11 @@ function createBorders(obj: Labyrinth): Labyrinth {
     minWeightVertex!.isVisited = true;
 
     // переносим найденную вершину в посещенные
-    const newY = minWeightVertex!.y
-    const newX = minWeightVertex!.x
+    const newY = minWeightVertex!.y;
+    const newX = minWeightVertex!.x;
 
     if (!visited[newY]) {
-      visited[newY] = {}
+      visited[newY] = {};
     }
 
     visited[newY][newX] = unvisited[newY][newX];
@@ -175,7 +175,7 @@ export function generateLabyrinth(size: number): Labyrinth {
 
   generateBaseStructure(obj, size);
   setNeighbours(obj, size);
-  obj = createBorders(obj)
+  obj = createBorders(obj);
 
   console.log(obj);
 

@@ -21,9 +21,11 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       <button class="game__button" id="button" type="button">Новый лабиринт</button>
     </div>
   </div>
-`
+`;
 
-const { drawLabyrinth, redrawLabyrinth } = setupCanvas(document.querySelector<HTMLCanvasElement>('#canvas')!);
+const { drawLabyrinth, redrawLabyrinth } = setupCanvas(
+  document.querySelector<HTMLCanvasElement>('#canvas')!,
+);
 setupButton(document.querySelector<HTMLButtonElement>('#button')!, redrawLabyrinth);
 setupSelect(document.querySelector<HTMLSelectElement>('#select')!, redrawLabyrinth);
 
