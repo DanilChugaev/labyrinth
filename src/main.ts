@@ -14,11 +14,11 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
     <canvas id="canvas"></canvas>
     
     <div class="game__actions">
-      <button class="game__button" id="button" type="button">Новый лабиринт</button>
-      
       <div class="game__select-container">
         <select class="game__select" id="select"></select>
       </div>
+      
+      <button class="game__button" id="button" type="button">Новый лабиринт</button>
     </div>
   </div>
 `
