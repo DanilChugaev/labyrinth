@@ -1,5 +1,27 @@
-import type { Border, Cell, Labyrinth } from '../types.ts';
+import type { Border, Cell, Labyrinth, MinWeightVertex, PrevCoordVertex } from '../types.ts';
 import { getSides } from '../utils/getSides.ts';
+
+function findMinVertex(
+  item: Cell | undefined,
+  visited: Labyrinth,
+  minWeightVertex: MinWeightVertex,
+  y: string,
+  x: string,
+  prev: PrevCoordVertex,
+) {
+  if (!item || item.isVisited) return;
+
+  if (visited[Number(item.y)]?.[Number(item.x)]) {
+    item.isVisited = true;
+    return;
+  }
+
+  if (!minWeightVertex.value || minWeightVertex.value.weight > item.weight) {
+    minWeightVertex.value = item;
+    prev.y = Number(y);
+    prev.x = Number(x);
+  }
+}
 
 export function createBorders(obj: Labyrinth): Labyrinth {
   const unvisited: Labyrinth = obj;
@@ -11,8 +33,11 @@ export function createBorders(obj: Labyrinth): Labyrinth {
   visited[0][0].isVisited = true;
   delete unvisited[0][0];
 
-  let prevY = 0;
-  let prevX = 0;
+  const prev: PrevCoordVertex = {
+    y: 0,
+    x: 0,
+  };
+
   let newY = 0;
   let newX = 0;
   let isXEqual = false;
@@ -20,52 +45,35 @@ export function createBorders(obj: Labyrinth): Labyrinth {
   let prevBorders: Border | undefined = undefined;
   let newBorders: Border | undefined = undefined;
 
-  let firstcount = 0;
   let count = 0;
-  let usefulcount = 0;
 
   // тут надо запустить цикл с условием, пока в unvisited еще есть вершины
   while (Object.keys(unvisited).length) {
     // сосед с наименьшим весом
-    let minWeightVertex: Cell | undefined = undefined;
+    const minWeightVertex: MinWeightVertex = {
+      value: undefined,
+    };
 
     for (const y in visited) {
       for (const x in visited[y]) {
-        firstcount = firstcount + 1;
+        count = count + 1;
         // у neighbours в visited смотрим не посещенных соседей
         const neighbours = visited[y][x].neighbours;
         const { top, right, bottom, left } = getSides(Number(y), Number(x));
 
         // находим соседа с наименьшим весом
-        [
-          neighbours?.[top]?.[x],
-          neighbours?.[y]?.[right],
-          neighbours?.[bottom]?.[x],
-          neighbours?.[y]?.[left],
-        ].forEach(item => {
-          count = count + 1;
-          if (!item || item.isVisited) return;
-
-          if (visited[Number(item.y)]?.[Number(item.x)]) {
-            item.isVisited = true;
-            return;
-          }
-
-          if (!minWeightVertex || minWeightVertex.weight > item.weight) {
-            usefulcount = usefulcount + 1;
-            minWeightVertex = item;
-            prevY = Number(y);
-            prevX = Number(x);
-          }
-        });
+        findMinVertex(neighbours?.[top]?.[x], visited, minWeightVertex, y, x, prev);
+        findMinVertex(neighbours?.[y]?.[right], visited, minWeightVertex, y, x, prev);
+        findMinVertex(neighbours?.[bottom]?.[x], visited, minWeightVertex, y, x, prev);
+        findMinVertex(neighbours?.[y]?.[left], visited, minWeightVertex, y, x, prev);
       }
     }
 
-    minWeightVertex!.isVisited = true;
+    minWeightVertex.value!.isVisited = true;
 
     // переносим найденную вершину в посещенные
-    newY = minWeightVertex!.y;
-    newX = minWeightVertex!.x;
+    newY = minWeightVertex.value!.y;
+    newX = minWeightVertex.value!.x;
 
     if (!visited[newY]) {
       visited[newY] = {};
@@ -73,27 +81,27 @@ export function createBorders(obj: Labyrinth): Labyrinth {
 
     visited[newY][newX] = unvisited[newY][newX];
 
-    isXEqual = newX === prevX;
-    isYEqual = newY === prevY;
-    prevBorders = visited[prevY][prevX]!.borders!;
+    isYEqual = newY === prev.y;
+    isXEqual = newX === prev.x;
+    prevBorders = visited[prev.y][prev.x]!.borders!;
     newBorders = visited[newY][newX]!.borders!;
 
-    if (newY > prevY && isXEqual) {
+    if (newY > prev.y && isXEqual) {
       prevBorders.bottom = false;
       newBorders.top = false;
     }
 
-    if (newY < prevY && isXEqual) {
+    if (newY < prev.y && isXEqual) {
       prevBorders.top = false;
       newBorders.bottom = false;
     }
 
-    if (isYEqual && newX > prevX) {
+    if (isYEqual && newX > prev.x) {
       prevBorders.right = false;
       newBorders.left = false;
     }
 
-    if (isYEqual && newX < prevX) {
+    if (isYEqual && newX < prev.x) {
       prevBorders.left = false;
       newBorders.right = false;
     }
@@ -107,9 +115,7 @@ export function createBorders(obj: Labyrinth): Labyrinth {
     }
   }
 
-  console.log('количество итераций firstcount: ', firstcount);
-  console.log('количество итераций: ', count);
-  console.log('количество итераций до конца: ', usefulcount);
+  console.log('Количество итераций: ', count);
 
   return visited;
 }

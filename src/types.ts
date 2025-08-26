@@ -27,3 +27,12 @@ export interface NeighbourGeneratorParams {
   x: number;
   generator: UniqueRandomNumberGenerator;
 }
+
+export interface MinWeightVertex {
+  value: Cell | undefined;
+}
+
+export interface PrevCoordVertex {
+  y: Y;
+  x: X;
+}
