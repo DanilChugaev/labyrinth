@@ -1,7 +1,7 @@
 import './style.css';
-import { setupCanvas } from './canvas.ts';
-import { setupButton } from './button.ts';
-import { setupSelect } from './select.ts';
+import { setupCanvas } from './elements/canvas.ts';
+import { setupButton } from './elements/button.ts';
+import { setupSelect } from './elements/select.ts';
 import labyrinth from '/labyrinth.svg';
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `

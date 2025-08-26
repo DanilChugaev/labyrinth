@@ -1,8 +1,8 @@
-import { generateLabyrinth } from './generator.ts';
-import type { Border, Labyrinth } from './types.ts';
-import { getLabyrinthSize } from './storage.ts';
+import { generateLabyrinth } from '../generator.ts';
+import type { Border, Labyrinth } from '../types.ts';
+import { getLabyrinthSize } from '../utils/storage.ts';
 
-function draw({
+async function draw({
   size,
   cellSize,
   context,
@@ -12,7 +12,7 @@ function draw({
   context: CanvasRenderingContext2D;
 }) {
   const start = performance.now();
-  const obj: Labyrinth = generateLabyrinth(size);
+  const obj: Labyrinth = await generateLabyrinth(size);
   const end = performance.now();
 
   console.log(`Время генерации: ${end - start} мс`);

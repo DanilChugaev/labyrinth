@@ -1,4 +1,4 @@
-import { UniqueRandomNumberGenerator } from './UniqueRandomNumberGenerator.ts';
+import { UniqueRandomNumberGenerator } from './utils/UniqueRandomNumberGenerator.ts';
 
 export interface Border {
   top: boolean;
