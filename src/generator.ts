@@ -1,6 +1,15 @@
 import type { Border, Cell, Labyrinth, NeighbourGeneratorParams } from './types.ts';
 import { UniqueRandomNumberGenerator } from './UniqueRandomNumberGenerator.ts';
 
+function getSides(y: number, x: number) {
+  return {
+    top: y - 1,
+    right: x + 1,
+    bottom: y + 1,
+    left: x - 1,
+  };
+}
+
 function generateBaseStructure(obj: Labyrinth, size: number) {
   const length = size * size;
   const generator = new UniqueRandomNumberGenerator(1, length * 3);
@@ -39,10 +48,7 @@ function generateNeighbours({
   size,
   generator,
 }: NeighbourGeneratorParams & { size: number }) {
-  const top = y - 1;
-  const right = x + 1;
-  const bottom = y + 1;
-  const left = x - 1;
+  const { top, right, bottom, left } = getSides(y, x);
 
   if (top >= 0) {
     generateYNeighbour({ obj, y, x, yCoord: top, generator });
@@ -156,6 +162,10 @@ function createBorders(obj: Labyrinth): Labyrinth {
   let prevBorders: Border | undefined = undefined;
   let newBorders: Border | undefined = undefined;
 
+  let firstcount = 0;
+  let count = 0;
+  let usefulcount = 0;
+
   // тут надо запустить цикл с условием, пока в unvisited еще есть вершины
   while (Object.keys(unvisited).length) {
     // сосед с наименьшим весом
@@ -163,28 +173,33 @@ function createBorders(obj: Labyrinth): Labyrinth {
 
     for (const y in visited) {
       for (const x in visited[y]) {
+        firstcount = firstcount + 1;
         // у neighbours в visited смотрим не посещенных соседей
         const neighbours = visited[y][x].neighbours;
+        const { top, right, bottom, left } = getSides(Number(y), Number(x));
 
         // находим соседа с наименьшим весом
-        for (const nY in neighbours) {
-          for (const nX in neighbours[Number(nY)]) {
-            const vertex = neighbours[Number(nY)][Number(nX)];
+        [
+          neighbours?.[top]?.[x],
+          neighbours?.[y]?.[right],
+          neighbours?.[bottom]?.[x],
+          neighbours?.[y]?.[left],
+        ].forEach(item => {
+          count = count + 1;
+          if (!item || item.isVisited) return;
 
-            if (vertex.isVisited) continue;
-
-            if (visited[Number(nY)]?.[Number(nX)]) {
-              vertex.isVisited = true;
-              continue;
-            }
-
-            if (!minWeightVertex || minWeightVertex.weight > vertex.weight) {
-              minWeightVertex = vertex;
-              prevY = Number(y);
-              prevX = Number(x);
-            }
+          if (visited[Number(item.y)]?.[Number(item.x)]) {
+            item.isVisited = true;
+            return;
           }
-        }
+
+          if (!minWeightVertex || minWeightVertex.weight > item.weight) {
+            usefulcount = usefulcount + 1;
+            minWeightVertex = item;
+            prevY = Number(y);
+            prevX = Number(x);
+          }
+        });
       }
     }
 
@@ -234,16 +249,25 @@ function createBorders(obj: Labyrinth): Labyrinth {
     }
   }
 
+  console.log('количество итераций firstcount: ', firstcount);
+  console.log('количество итераций: ', count);
+  console.log('количество итераций до конца: ', usefulcount);
+
   return visited;
 }
 
 export function generateLabyrinth(size: number): Labyrinth {
   let obj: Labyrinth = {};
 
+  const start = performance.now();
   generateBaseStructure(obj, size);
-  obj = createBorders(obj);
+  const end = performance.now();
+  console.log(`Время generateBaseStructure: ${end - start} мс`);
 
-  // console.log(obj);
+  const start2 = performance.now();
+  obj = createBorders(obj);
+  const end2 = performance.now();
+  console.log(`Время createBorders: ${end2 - start2} мс`);
 
   return obj;
 }

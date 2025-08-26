@@ -26,6 +26,7 @@ function draw({
   let borders: Border | undefined = undefined;
 
   const start2 = performance.now();
+  context.fillStyle = '#f3f4f6';
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
       newX = x * cellSize;
@@ -34,7 +35,6 @@ function draw({
       newYPlus1 = (y + 1) * cellSize;
       borders = obj[y][x].borders!;
 
-      context.fillStyle = '#f3f4f6';
       context.fillRect(newX, newY, cellSize, cellSize);
 
       if (borders.right) {
@@ -56,10 +56,10 @@ function draw({
         context.moveTo(newX, newYPlus1);
         context.lineTo(newXPlus1, newYPlus1);
       }
-
-      context.stroke();
     }
   }
+
+  context.stroke();
   const end2 = performance.now();
 
   console.log(`Время отрисовки: ${end2 - start2} мс`);
