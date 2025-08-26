@@ -17,7 +17,7 @@ function draw({
 
   console.log(`Время генерации: ${end - start} мс`);
 
-  context.lineWidth = 2;
+  context.lineWidth = 1;
 
   let newX = 0;
   let newY = 0;

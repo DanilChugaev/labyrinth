@@ -1,7 +1,8 @@
 import { getLabyrinthSize, setLabyrinthSize } from './storage.ts';
+import { MAX_CANVAS_SIZE, MIN_CANVAS_SIZE, STEP_CANVAS_SIZE } from './constants.ts';
 
 export function setupSelect(element: HTMLSelectElement, onChangeSelectionFn: () => void) {
-  for (let i = 5; i <= 100; i += 5) {
+  for (let i = MIN_CANVAS_SIZE; i <= MAX_CANVAS_SIZE; i += STEP_CANVAS_SIZE) {
     const option = document.createElement('option');
     option.value = i.toString();
     option.textContent = i.toString();
