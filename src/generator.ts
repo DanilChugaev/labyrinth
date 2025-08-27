@@ -147,7 +147,10 @@ export async function generateLabyrinth(size: number): Promise<Labyrinth> {
   const start2 = performance.now();
   const worker = new Worker('src/worker/worker.ts', { type: 'module' });
 
-  obj = await runWorker<Labyrinth, Labyrinth>(worker, obj);
+  obj = await runWorker<Labyrinth, Labyrinth>(worker, { obj, size } as {
+    obj: Labyrinth;
+    size: number;
+  });
 
   const end2 = performance.now();
   console.log(`Время createBorders: ${end2 - start2} мс`);
