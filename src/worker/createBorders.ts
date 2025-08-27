@@ -63,10 +63,12 @@ export function createBorders(obj: Labyrinth, size: number): Labyrinth {
 
     // мб стоит удалять ненужные элементы из visitedArr, чтобы уменьшить количество проходов
     // если все соседи в item из visitedArr посещены, то стоит удалить этот элемент из массива
-    for (const item of visitedArr) {
+    const length = visitedArr.length;
+
+    for (let i = 0; i < length; i++) {
       count = count + 1;
       // у neighbours в visited смотрим не посещенных соседей
-      const { y, x, neighbours } = item;
+      const { y, x, neighbours } = visitedArr[i];
       const { top, right, bottom, left } = getSides(y, x);
 
       // находим соседа с наименьшим весом
@@ -88,24 +90,7 @@ export function createBorders(obj: Labyrinth, size: number): Labyrinth {
     }
 
     visited[newY][newX] = unvisited[newY][newX];
-
-    // const neir = visited[newY][newX].neighbours
-    // const { top, right, bottom, left } = getSides(newY, newX);
-    // const a = neir[top]?.[prev.x] ? neir[top]?.[prev.x]?.isVisited : undefined
-    // const b = neir[prev.y]?.[right] ? neir[prev.y]?.[right]?.isVisited : undefined
-    // const c = neir[bottom]?.[prev.x] ? neir[bottom]?.[prev.x]?.isVisited : undefined
-    // const d = neir[prev.y]?.[left] ? neir[prev.y]?.[left]?.isVisited : undefined
-    // // debugger
-    // if (
-    //   a === false || b === false || c === false || d === false
-    // ) {
-    //
-    // } else {
-    //   debugger
-    // }
     visitedArr.push(visited[newY][newX]);
-    // debugger
-    // }
 
     isYEqual = newY === prev.y;
     isXEqual = newX === prev.x;
