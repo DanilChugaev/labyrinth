@@ -2,14 +2,14 @@ import type { Border, Cell, Labyrinth, MinWeightVertex, PrevCoordVertex } from '
 import { getSides } from '../utils/getSides.ts';
 
 function findMinVertex(
-  item: Cell | undefined,
+  item: Cell,
   visited: Labyrinth,
   minWeightVertex: MinWeightVertex,
   y: number,
   x: number,
   prev: PrevCoordVertex,
 ) {
-  if (!item || item.isVisited) return;
+  if (item.isVisited) return;
 
   if (visited[item.y]?.[item.x]) {
     item.isVisited = true;
@@ -24,19 +24,18 @@ function findMinVertex(
 }
 
 export function createBorders(obj: Labyrinth, size: number): Labyrinth {
-  const unvisited: Labyrinth = obj;
+  let unvisitedCount = size * size;
   const visited: Labyrinth = {};
   const visitedArr: Cell[] = [];
 
   // для простоты первой вершиной будем брать 1 элемент { x:0, y: 0 }
   visited[0] = {};
-  visited[0][0] = unvisited[0][0];
+  visited[0][0] = obj[0][0];
   visited[0][0].isVisited = true;
 
   // visitedArr используем для поиска не посещенных соседей
   visitedArr.push(visited[0][0]);
-
-  delete unvisited[0][0];
+  unvisitedCount = unvisitedCount - 1;
 
   const prev: PrevCoordVertex = {
     y: 0,
@@ -54,7 +53,7 @@ export function createBorders(obj: Labyrinth, size: number): Labyrinth {
   let whilecount = 0;
   const start = performance.now();
   // тут надо запустить цикл с условием, пока в unvisited еще есть вершины
-  while (Object.keys(unvisited).length) {
+  while (unvisitedCount) {
     whilecount = whilecount + 1;
     // сосед с наименьшим весом
     const minWeightVertex: MinWeightVertex = {
@@ -72,11 +71,11 @@ export function createBorders(obj: Labyrinth, size: number): Labyrinth {
       const { top, right, bottom, left } = getSides(y, x);
 
       // находим соседа с наименьшим весом
-      top >= 0 && findMinVertex(neighbours?.[top]?.[x], visited, minWeightVertex, y, x, prev);
-      right < size && findMinVertex(neighbours?.[y]?.[right], visited, minWeightVertex, y, x, prev);
+      top >= 0 && findMinVertex(neighbours![top][x], visited, minWeightVertex, y, x, prev);
+      right < size && findMinVertex(neighbours![y][right], visited, minWeightVertex, y, x, prev);
       bottom < size &&
-        findMinVertex(neighbours?.[bottom]?.[x], visited, minWeightVertex, y, x, prev);
-      left >= 0 && findMinVertex(neighbours?.[y]?.[left], visited, minWeightVertex, y, x, prev);
+        findMinVertex(neighbours![bottom][x], visited, minWeightVertex, y, x, prev);
+      left >= 0 && findMinVertex(neighbours![y][left], visited, minWeightVertex, y, x, prev);
     }
 
     minWeightVertex.value!.isVisited = true;
@@ -89,7 +88,7 @@ export function createBorders(obj: Labyrinth, size: number): Labyrinth {
       visited[newY] = {};
     }
 
-    visited[newY][newX] = unvisited[newY][newX];
+    visited[newY][newX] = obj[newY][newX];
     visitedArr.push(visited[newY][newX]);
 
     isYEqual = newY === prev.y;
@@ -119,19 +118,15 @@ export function createBorders(obj: Labyrinth, size: number): Labyrinth {
 
     visited[newY][newX].isVisited = true;
 
-    delete unvisited[newY][newX];
-
-    if (!Object.keys(unvisited[newY]).length) {
-      delete unvisited[newY];
-    }
+    unvisitedCount = unvisitedCount - 1;
   }
 
   const end = performance.now();
 
   console.log(`Цикл while: ${end - start} мс`);
 
-  console.log('Количество whilecount: ', whilecount);
-  console.log('Количество итераций: ', count);
+  console.log('Количество циклов while: ', whilecount);
+  console.log('Количество всех итераций: ', count);
 
   return visited;
 }
