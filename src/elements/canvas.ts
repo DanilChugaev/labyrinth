@@ -12,12 +12,14 @@ async function draw({
   context: CanvasRenderingContext2D;
 }) {
   const start = performance.now();
-  const obj: Labyrinth = await generateLabyrinth(size);
-  const end = performance.now();
 
+  const obj: Labyrinth = await generateLabyrinth(size);
+
+  const end = performance.now();
   console.log(`Время генерации: ${end - start} мс`);
 
   context.lineWidth = 1;
+  context.fillStyle = '#f3f4f6';
 
   let newX = 0;
   let newY = 0;
@@ -26,7 +28,7 @@ async function draw({
   let borders: Border | undefined = undefined;
 
   const start2 = performance.now();
-  context.fillStyle = '#f3f4f6';
+
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
       newX = x * cellSize;
@@ -60,8 +62,8 @@ async function draw({
   }
 
   context.stroke();
-  const end2 = performance.now();
 
+  const end2 = performance.now();
   console.log(`Время отрисовки: ${end2 - start2} мс`);
 }
 

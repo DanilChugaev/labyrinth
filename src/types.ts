@@ -1,5 +1,3 @@
-import { UniqueRandomNumberGenerator } from './utils/UniqueRandomNumberGenerator.ts';
-
 export interface Border {
   top: boolean;
   right: boolean;
@@ -15,24 +13,15 @@ export interface Cell {
   x: X;
   weight: number;
   isVisited: boolean;
-  neighbours?: Labyrinth;
   borders?: Border;
 }
 
 export type Labyrinth = Record<Y, Record<X, Cell>>;
 
-export interface NeighbourGeneratorParams {
-  obj: Labyrinth;
-  y: number;
-  x: number;
-  generator: UniqueRandomNumberGenerator;
-}
-
-export interface MinWeightVertex {
-  value: Cell | undefined;
-}
-
-export interface PrevCoordVertex {
+export interface Heap {
+  weight: number;
   y: Y;
   x: X;
+  prevY: number;
+  prevX: number;
 }

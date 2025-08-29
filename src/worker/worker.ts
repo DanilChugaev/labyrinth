@@ -1,5 +1,5 @@
-import { createBorders } from './createBorders.ts';
+import { generateStructure } from './generateStructure.ts';
 
-self.addEventListener('message', event => {
-  self.postMessage(createBorders(event.data.obj, event.data.size));
+self.addEventListener('message', (event: { data: number }) => {
+  self.postMessage(generateStructure(event.data));
 });
