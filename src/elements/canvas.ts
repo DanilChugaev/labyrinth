@@ -1,5 +1,4 @@
 import { generateLabyrinth } from '../generator.ts';
-import type { Border, Labyrinth } from '../types.ts';
 import { getLabyrinthSize } from '../utils/storage.ts';
 
 async function draw({
@@ -13,51 +12,52 @@ async function draw({
 }) {
   const start = performance.now();
 
-  const obj: Labyrinth = await generateLabyrinth(size);
+  const structure: Uint8Array = await generateLabyrinth(size);
+  const totalCells = structure.length;
 
   const end = performance.now();
   console.log(`Время генерации: ${end - start} мс`);
 
   context.lineWidth = 1;
+  context.strokeStyle = '#000000';
   context.fillStyle = '#f3f4f6';
 
-  let newX = 0;
-  let newY = 0;
-  let newXPlus1 = 0;
-  let newYPlus1 = 0;
-  let borders: Border | undefined = undefined;
+  context.fillRect(0, 0, size * cellSize, size * cellSize);
 
   const start2 = performance.now();
 
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      newX = x * cellSize;
-      newY = y * cellSize;
-      newXPlus1 = (x + 1) * cellSize;
-      newYPlus1 = (y + 1) * cellSize;
-      borders = obj[y][x].borders!;
+  context.beginPath();
 
-      context.fillRect(newX, newY, cellSize, cellSize);
+  for (let i = 0; i < totalCells; i++) {
+    const x = i % size;
+    const y = Math.floor(i / size);
+    const newX = x * cellSize;
+    const newY = y * cellSize;
+    const newXPlus1 = (x + 1) * cellSize;
+    const newYPlus1 = (y + 1) * cellSize;
 
-      if (borders.right) {
-        context.moveTo(newXPlus1, newY);
-        context.lineTo(newXPlus1, newYPlus1);
-      }
+    // проверяем верхнюю стену
+    if ((structure[i] & (1 << 0)) !== 0) {
+      context.moveTo(newX, newY);
+      context.lineTo(newXPlus1, newY);
+    }
 
-      if (borders.left) {
-        context.moveTo(newX, newY);
-        context.lineTo(newX, newYPlus1);
-      }
+    // проверяем правую стену
+    if ((structure[i] & (1 << 1)) !== 0) {
+      context.moveTo(newXPlus1, newY);
+      context.lineTo(newXPlus1, newYPlus1);
+    }
 
-      if (borders.top) {
-        context.moveTo(newX, newY);
-        context.lineTo(newXPlus1, newY);
-      }
+    // проверяем нижнюю стену
+    if ((structure[i] & (1 << 2)) !== 0) {
+      context.moveTo(newX, newYPlus1);
+      context.lineTo(newXPlus1, newYPlus1);
+    }
 
-      if (borders.bottom) {
-        context.moveTo(newX, newYPlus1);
-        context.lineTo(newXPlus1, newYPlus1);
-      }
+    // проверяем левую стену
+    if ((structure[i] & (1 << 3)) !== 0) {
+      context.moveTo(newX, newY);
+      context.lineTo(newX, newYPlus1);
     }
   }
 
