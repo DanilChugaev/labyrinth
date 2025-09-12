@@ -130,10 +130,17 @@ body {
 .game__select:focus,
 .game__select:focus-visible,
 .game__button:focus,
-.game__button:focus-visible {
+.game__button:focus-visible,
+.game__button:active,
+.game__button--active {
   outline: none;
   border-color: var(--border-color-focus);
   box-shadow: var(--box-shadow-focus);
+}
+
+.game__button:active,
+.game__button--active {
+  transform: scale(0.95);
 }
 
 /* Custom arrow */
@@ -147,7 +154,37 @@ body {
   pointer-events: none;
 }
 
-@media (max-width: 399px) {
+.game-button--top {
+  grid-area: top;
+}
+
+.game-button--left {
+  grid-area: left;
+}
+
+.game-button--bottom {
+  grid-area: bottom;
+}
+
+.game-button--right {
+  grid-area: right;
+}
+
+.game__arrows {
+  display: grid;
+  gap: 4px;
+  grid-template-columns: repeat(3, 55px);
+  grid-template-rows: repeat(2, 55px);
+  grid-template-areas:
+    '. top .'
+    'left bottom right';
+}
+
+.game__arrows .game-button {
+  font-size: 20px;
+}
+
+@media (max-width: 499px) {
   .game__actions {
     flex-direction: column;
     align-items: center;

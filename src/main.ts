@@ -3,6 +3,7 @@ import { setupCanvas } from './elements/canvas.ts';
 import { setupButton } from './elements/button.ts';
 import { setupSelect } from './elements/select.ts';
 import labyrinth from '/labyrinth.svg';
+import { setupArrows } from './elements/arrows.ts';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
 const styles = getComputedStyle(app);
@@ -39,6 +40,13 @@ app.innerHTML = `
       
       <button class="game__button" id="button" type="button" disabled>Новый лабиринт</button>
     </div>
+    
+    <div class="game__arrows">
+      <button class="game__button game-button--top" id="top" type="button">↑</button>
+      <button class="game__button game-button--left" id="left" type="button">←</button>
+      <button class="game__button game-button--bottom" id="bottom" type="button">↓</button>
+      <button class="game__button game-button--right" id="right" type="button">→</button>
+    </div>
   </div>
 `;
 
@@ -47,9 +55,15 @@ const button = document.querySelector<HTMLButtonElement>('#button')!;
 const select = document.querySelector<HTMLSelectElement>('#select')!;
 const preloader = document.querySelector<HTMLOrSVGImageElement>('#preloader')!;
 
+const top = document.querySelector<HTMLButtonElement>('#top')!;
+const left = document.querySelector<HTMLButtonElement>('#left')!;
+const bottom = document.querySelector<HTMLButtonElement>('#bottom')!;
+const right = document.querySelector<HTMLButtonElement>('#right')!;
+
 const { drawLabyrinth, redrawLabyrinth } = setupCanvas(canvas);
 setupButton(button, redrawLabyrinth);
 setupSelect(select, redrawLabyrinth);
+setupArrows({ top, left, bottom, right });
 
 await drawLabyrinth();
 
