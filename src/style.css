@@ -71,6 +71,7 @@ body {
 }
 
 .game__canvas-container {
+  display: flex;
   position: relative;
 }
 
@@ -180,7 +181,7 @@ body {
     'left bottom right';
 }
 
-.game__arrows .game-button {
+.game__arrows .game__button {
   font-size: 20px;
 }
 

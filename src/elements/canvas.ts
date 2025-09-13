@@ -70,15 +70,19 @@ async function draw({
 export function setupCanvas(element: HTMLCanvasElement) {
   const { innerWidth: windowWidth, innerHeight: windowHeight } = window;
 
-  const margin = 24;
+  const padding = 24;
+  const gap = 16;
+  const footerHeight = 56;
+  const actionsHeight = 46;
+  const arrowsHeight = 114;
   const size = Number(getLabyrinthSize());
-  const coef = 1.2;
 
-  const usefulWidth = windowWidth - 2 * margin;
+  const usefulWidth = windowWidth - 2 * padding;
   const cellSizeWidth = Math.floor(usefulWidth / size);
   const canvasWidth = cellSizeWidth * size;
 
-  const usefulHeight = windowHeight / coef;
+  const usefulHeight =
+    windowHeight - (2 * padding + 3 * gap) - footerHeight - actionsHeight - arrowsHeight;
   const cellSizeHeight = Math.floor(usefulHeight / size);
   const canvasHeight = cellSizeHeight * size;
 

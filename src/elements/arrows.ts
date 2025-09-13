@@ -35,26 +35,15 @@ export function setupArrows({
   const buttons = [top, left, bottom, right];
   buttons.forEach(button => {
     // для мыши
-    button.addEventListener('mousedown', () => {
-      button.classList.add('game__button--active');
-    });
-    button.addEventListener('mouseup', () => {
-      button.classList.remove('game__button--active');
-    });
-    button.addEventListener('mouseleave', () => {
-      button.classList.remove('game__button--active');
-    });
+    button.addEventListener('mousedown', () => {});
+    button.addEventListener('mouseup', () => {});
+    button.addEventListener('mouseleave', () => {});
 
     // для сенсорных устройств
     button.addEventListener('touchstart', event => {
       event.preventDefault();
-      button.classList.add('game__button--active');
     });
-    button.addEventListener('touchend', () => {
-      button.classList.remove('game__button--active');
-    });
-    button.addEventListener('touchcancel', () => {
-      button.classList.remove('game__button--active');
-    });
+    button.addEventListener('touchend', () => {});
+    button.addEventListener('touchcancel', () => {});
   });
 }
