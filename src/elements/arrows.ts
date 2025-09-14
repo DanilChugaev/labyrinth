@@ -42,8 +42,13 @@ export function setupArrows({
     // для сенсорных устройств
     button.addEventListener('touchstart', event => {
       event.preventDefault();
+      button.classList.add('game__button--active');
     });
-    button.addEventListener('touchend', () => {});
-    button.addEventListener('touchcancel', () => {});
+    button.addEventListener('touchend', () => {
+      button.classList.remove('game__button--active');
+    });
+    button.addEventListener('touchcancel', () => {
+      button.classList.remove('game__button--active');
+    });
   });
 }

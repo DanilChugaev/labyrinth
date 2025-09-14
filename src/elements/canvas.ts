@@ -73,7 +73,7 @@ export function setupCanvas(element: HTMLCanvasElement) {
   const padding = 24;
   const gap = 16;
   const footerHeight = 56;
-  const actionsHeight = 46;
+  const actionsHeight = 0;
   const arrowsHeight = 114;
   const size = Number(getLabyrinthSize());
 
@@ -82,7 +82,7 @@ export function setupCanvas(element: HTMLCanvasElement) {
   const canvasWidth = cellSizeWidth * size;
 
   const usefulHeight =
-    windowHeight - (2 * padding + 3 * gap) - footerHeight - actionsHeight - arrowsHeight;
+    windowHeight - (2 * padding + 2 * gap) - footerHeight - actionsHeight - arrowsHeight;
   const cellSizeHeight = Math.floor(usefulHeight / size);
   const canvasHeight = cellSizeHeight * size;
 
