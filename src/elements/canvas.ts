@@ -1,23 +1,20 @@
 import { generateLabyrinth } from '../generator.ts';
 import { getLabyrinthSize } from '../utils/storage.ts';
+import type { PointDirection } from '../types.ts';
 
 async function draw({
   size,
   cellSize,
   context,
+  structure,
+  totalCells,
 }: {
   size: number;
   cellSize: number;
   context: CanvasRenderingContext2D;
+  structure: Uint8Array;
+  totalCells: number;
 }) {
-  const start = performance.now();
-
-  const structure: Uint8Array = await generateLabyrinth(size);
-  const totalCells = structure.length;
-
-  const end = performance.now();
-  console.log(`Время генерации: ${end - start} мс`);
-
   context.lineWidth = 1;
   context.strokeStyle = '#000000';
   context.fillStyle = '#f3f4f6';
@@ -67,7 +64,106 @@ async function draw({
   console.log(`Время отрисовки: ${end2 - start2} мс`);
 }
 
-export function setupCanvas(element: HTMLCanvasElement) {
+let currentY = 0;
+let currentX = 0;
+
+const directionMap = {
+  top: (structure: Uint8Array, size: number) => {
+    if ((structure[currentY * size + currentX] & (1 << 0)) === 0) {
+      currentY -= 1;
+    }
+  },
+  right: (structure: Uint8Array, size: number) => {
+    if ((structure[currentY * size + currentX] & (1 << 1)) === 0) {
+      currentX += 1;
+    }
+  },
+  bottom: (structure: Uint8Array, size: number) => {
+    if ((structure[currentY * size + currentX] & (1 << 2)) === 0) {
+      currentY += 1;
+    }
+  },
+  left: (structure: Uint8Array, size: number) => {
+    if ((structure[currentY * size + currentX] & (1 << 3)) === 0) {
+      currentX -= 1;
+    }
+  },
+};
+
+function drawPath({
+  cellSize,
+  context,
+  initialPointCoord,
+  pointRadius,
+  endPointAngle,
+}: {
+  cellSize: number;
+  context: CanvasRenderingContext2D;
+  structure: Uint8Array;
+  initialPointCoord: number;
+  pointRadius: number;
+  endPointAngle: number;
+}) {
+  context.beginPath();
+  context.arc(
+    currentX * cellSize + initialPointCoord,
+    currentY * cellSize + initialPointCoord,
+    pointRadius,
+    0,
+    endPointAngle,
+  );
+  context.fillStyle = 'blue';
+  context.fill();
+}
+
+function drawPointOnCanvas({
+  size,
+  cellSize,
+  pathContext,
+  pointContext,
+  structure,
+  initialPointCoord,
+  pointRadius,
+  endPointAngle,
+  direction,
+}: {
+  size: number;
+  cellSize: number;
+  pathContext: CanvasRenderingContext2D;
+  pointContext: CanvasRenderingContext2D;
+  structure: Uint8Array;
+  initialPointCoord: number;
+  pointRadius: number;
+  endPointAngle: number;
+  direction?: PointDirection;
+}) {
+  if (direction) {
+    directionMap[direction](structure, size);
+  }
+
+  drawPath({
+    context: pathContext,
+    cellSize,
+    structure,
+    initialPointCoord,
+    pointRadius,
+    endPointAngle,
+  });
+
+  pointContext.clearRect(0, 0, size * cellSize, size * cellSize);
+  pointContext.beginPath();
+  pointContext.arc(
+    currentX * cellSize + initialPointCoord,
+    currentY * cellSize + initialPointCoord,
+    pointRadius,
+    0,
+    endPointAngle,
+  );
+  pointContext.fillStyle = 'red';
+  pointContext.fill();
+}
+
+function getSizes() {
   const { innerWidth: windowWidth, innerHeight: windowHeight } = window;
 
   const padding = 24;
@@ -97,19 +193,78 @@ export function setupCanvas(element: HTMLCanvasElement) {
     cellSize = cellSizeHeight;
   }
 
-  element.width = canvasSize;
-  element.height = canvasSize;
+  return {
+    size,
+    canvasSize,
+    cellSize,
+  };
+}
 
-  const context = element.getContext('2d')!;
+export async function setupCanvas({
+  canvasBackground,
+  canvasPath,
+  canvasPoint,
+}: {
+  canvasBackground: HTMLCanvasElement;
+  canvasPath: HTMLCanvasElement;
+  canvasPoint: HTMLCanvasElement;
+}) {
+  const { size, canvasSize, cellSize } = getSizes();
 
-  const drawLabyrinth = () => draw({ size, cellSize, context });
+  canvasBackground.width = canvasSize;
+  canvasBackground.height = canvasSize;
+
+  canvasPath.width = canvasSize;
+  canvasPath.height = canvasSize;
+
+  canvasPoint.width = canvasSize;
+  canvasPoint.height = canvasSize;
+
+  const backgroundContext = canvasBackground.getContext('2d')!;
+  const pathContext = canvasPath.getContext('2d')!;
+  const pointContext = canvasPoint.getContext('2d')!;
+
+  const start = performance.now();
+
+  const structure: Uint8Array = await generateLabyrinth(size);
+  const totalCells = structure.length;
+
+  const end = performance.now();
+  console.log(`Время генерации: ${end - start} мс`);
+
+  const drawLabyrinth = () =>
+    draw({
+      size,
+      cellSize,
+      context: backgroundContext,
+      structure,
+      totalCells,
+    });
 
   const redrawLabyrinth = () => {
     window.location.reload();
   };
 
+  const initialPointCoord = cellSize / 2;
+  const pointRadius = cellSize / 3;
+  const endPointAngle = 2 * Math.PI;
+
+  const drawPoint = (direction?: PointDirection) =>
+    drawPointOnCanvas({
+      size,
+      cellSize,
+      pointContext,
+      pathContext,
+      structure,
+      initialPointCoord,
+      pointRadius,
+      endPointAngle,
+      direction,
+    });
+
   return {
     drawLabyrinth,
     redrawLabyrinth,
+    drawPoint,
   };
 }

@@ -40,7 +40,9 @@ app.innerHTML = `
         </circle>
       </svg>
       
-      <canvas id="canvas"></canvas>
+      <canvas id="canvas-background" class="canvas-background"></canvas>
+      <canvas id="canvas-path" class="canvas-path"></canvas>
+      <canvas id="canvas-point" class="canvas-point"></canvas>
     </div>
     
     <div class="game__arrows">
@@ -52,7 +54,9 @@ app.innerHTML = `
   </div>
 `;
 
-const canvas = document.querySelector<HTMLCanvasElement>('#canvas')!;
+const canvasBackground = document.querySelector<HTMLCanvasElement>('#canvas-background')!;
+const canvasPath = document.querySelector<HTMLCanvasElement>('#canvas-path')!;
+const canvasPoint = document.querySelector<HTMLCanvasElement>('#canvas-point')!;
 const button = document.querySelector<HTMLButtonElement>('#button')!;
 const select = document.querySelector<HTMLSelectElement>('#select')!;
 const preloader = document.querySelector<HTMLOrSVGImageElement>('#preloader')!;
@@ -65,12 +69,17 @@ const right = document.querySelector<HTMLButtonElement>('#right')!;
 const isTouchDevice = !!('ontouchstart' in window || navigator.maxTouchPoints);
 console.log(isTouchDevice);
 
-const { drawLabyrinth, redrawLabyrinth } = setupCanvas(canvas);
+const { drawLabyrinth, redrawLabyrinth, drawPoint } = await setupCanvas({
+  canvasBackground,
+  canvasPath,
+  canvasPoint,
+});
 setupButton(button, redrawLabyrinth);
 setupSelect(select, redrawLabyrinth);
-setupArrows({ top, left, bottom, right });
+setupArrows({ top, left, bottom, right, drawPoint });
 
 await drawLabyrinth();
+drawPoint();
 
 button.disabled = false;
 select.disabled = false;

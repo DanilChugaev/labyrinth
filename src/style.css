@@ -83,6 +83,20 @@ body {
   position: relative;
 }
 
+.canvas-background {
+  z-index: 0;
+}
+
+.canvas-path {
+  position: absolute;
+  z-index: 1;
+}
+
+.canvas-point {
+  position: absolute;
+  z-index: 2;
+}
+
 .game__preloader {
   position: absolute;
   top: 50%;
