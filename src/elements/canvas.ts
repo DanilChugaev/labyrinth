@@ -112,7 +112,7 @@ function drawPath({
     0,
     endPointAngle,
   );
-  context.fillStyle = 'blue';
+  context.fillStyle = 'blue'; // todo: цвет брать из --figure-color
   context.fill();
 }
 

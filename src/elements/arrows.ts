@@ -46,16 +46,8 @@ export function setupArrows({
     const keyMapObj: KeyMapObj = keyMap[event.key];
 
     if (keyMapObj?.button && !event.repeat && keyMapObj?.direction) {
-      keyMapObj.button.classList.add('game__button--active');
+      event.preventDefault();
       drawPoint(keyMapObj.direction);
-    }
-  });
-
-  document.addEventListener('keyup', event => {
-    const keyMapObj: KeyMapObj = keyMap[event.key];
-
-    if (keyMapObj?.button) {
-      keyMapObj.button.classList.remove('game__button--active');
     }
   });
 
@@ -64,8 +56,6 @@ export function setupArrows({
   buttons.forEach(({ button, direction }) => {
     // для мыши
     button!.addEventListener('mousedown', () => drawPoint(direction!));
-    button!.addEventListener('mouseup', () => {});
-    button!.addEventListener('mouseleave', () => {});
 
     // для сенсорных устройств
     button!.addEventListener('touchstart', event => {
