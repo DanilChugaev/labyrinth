@@ -14,7 +14,8 @@
   --color: rgba(255, 255, 255, 0.87);
   --gap: 16px;
   --padding: 24px;
-  --logo-invert: invert(0);
+  --icon-invert: invert(0);
+  --icon-invert-hover: invert(0.3);
   --min-width: 320px;
   --full-height: 100vh;
   --full-width: 100%;
@@ -27,6 +28,10 @@
   --border-color-focus: #bb86fc;
   --box-shadow-focus: 0 0 0 3px rgba(187, 134, 252, 0.2);
   --figure-color: var(--border-color-focus);
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
@@ -60,7 +65,7 @@ body {
 }
 
 .header__logo {
-  filter: var(--logo-invert);
+  filter: var(--icon-invert);
 }
 
 .header__title {
@@ -106,7 +111,7 @@ body {
 
 .game__actions {
   display: flex;
-  justify-content: center;
+  align-items: center;
   gap: var(--gap);
 }
 
@@ -214,6 +219,48 @@ body {
   font-size: 20px;
 }
 
+.settings {
+  display: flex;
+  position: relative;
+}
+
+.settings__button {
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+  transition: filter 0.3s;
+}
+
+.settings__button:hover,
+.settings__button:focus {
+  outline: none;
+  filter: var(--icon-invert-hover);
+}
+
+.settings__icon {
+  filter: var(--icon-invert);
+}
+
+.settings__popover {
+  flex-direction: column;
+  gap: var(--gap);
+  position: absolute;
+  inset: unset;
+  width: 300px;
+  padding: var(--padding);
+  margin: 0;
+  top: 90px;
+  right: var(--padding);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+}
+
+.settings__popover:popover-open {
+  display: flex;
+}
+
 @media (max-width: 629px) {
   .header {
     flex-direction: column;
@@ -231,7 +278,7 @@ body {
   :root {
     --bg-color: #ffffff;
     --color: #213547;
-    --logo-invert: invert(1);
+    --icon-invert: invert(1);
     --border-color-focus: #6200ea;
     --box-shadow-focus: 0 0 0 3px rgba(98, 0, 234, 0.2);
   }

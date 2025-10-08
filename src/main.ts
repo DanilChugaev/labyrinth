@@ -3,6 +3,7 @@ import { setupCanvas } from './elements/canvas.ts';
 import { setupButton } from './elements/button.ts';
 import { setupSelect } from './elements/select.ts';
 import labyrinth from '/labyrinth.svg';
+import settings from '/settings.svg';
 import { setupArrows } from './elements/arrows.ts';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
@@ -17,6 +18,18 @@ app.innerHTML = `
     </div>
     
     <div class="game__actions">
+      <div class="settings">
+        <button  class="settings__button" popovertarget="settings-popover" title="Настройки">
+          <img class="settings__icon" src="${settings}" alt="Settings icon" width="30">
+        </button>
+        
+        <div class="settings__popover" popover id="settings-popover">
+          <span>Настройки</span>
+          
+          sd
+        </div>
+      </div>
+    
       <div class="game__select-container">
         <select class="game__select" id="select" disabled></select>
       </div>
