@@ -1,4 +1,5 @@
 import { FAST_MOVEMENT_KEY, VIEW_PATH_KEY } from '../constants.ts';
+import { loadBooleanStorageValue, saveStorageValue } from '../utils/storage.ts';
 
 export function setupCheckboxes({
   checkboxViewPath,
@@ -9,8 +10,8 @@ export function setupCheckboxes({
   canvasPath: HTMLCanvasElement;
   checkboxFastMovement: HTMLInputElement;
 }) {
-  checkboxViewPath.checked = loadBool(VIEW_PATH_KEY, true);
-  checkboxFastMovement.checked = loadBool(FAST_MOVEMENT_KEY, true);
+  checkboxViewPath.checked = loadBooleanStorageValue(VIEW_PATH_KEY, true);
+  checkboxFastMovement.checked = loadBooleanStorageValue(FAST_MOVEMENT_KEY, true);
   checkboxFastMovement.disabled = !checkboxViewPath.checked;
 
   changeDisplay(canvasPath, checkboxViewPath.checked);
@@ -20,20 +21,15 @@ export function setupCheckboxes({
 
     changeDisplay(canvasPath, checked);
 
-    localStorage.setItem(VIEW_PATH_KEY, checked.toString());
+    saveStorageValue(VIEW_PATH_KEY, checked.toString());
     checkboxFastMovement.disabled = !checked;
     checkboxFastMovement.checked = checked;
-    localStorage.setItem(FAST_MOVEMENT_KEY, checkboxFastMovement.checked.toString());
+    saveStorageValue(FAST_MOVEMENT_KEY, checkboxFastMovement.checked.toString());
   };
 
   checkboxFastMovement.onchange = () => {
-    localStorage.setItem(FAST_MOVEMENT_KEY, checkboxFastMovement.checked.toString());
+    saveStorageValue(FAST_MOVEMENT_KEY, checkboxFastMovement.checked.toString());
   };
-}
-
-function loadBool(key: string, defaultValue: boolean): boolean {
-  const stored = localStorage.getItem(key);
-  return stored === null ? defaultValue : stored === 'true';
 }
 
 function changeDisplay(element: HTMLElement, condition: boolean) {
