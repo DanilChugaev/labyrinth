@@ -1,4 +1,4 @@
-import { DEFAULT_CANVAS_SIZE } from './constants.ts';
+import { DEFAULT_CANVAS_SIZE } from '../constants.ts';
 
 export function getLabyrinthSize(): string {
   return localStorage.getItem('labyrinth-size') ?? DEFAULT_CANVAS_SIZE.toString();

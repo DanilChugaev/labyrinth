@@ -5,6 +5,7 @@ import { setupSelect } from './elements/select.ts';
 import labyrinth from '/labyrinth.svg';
 import settings from '/settings.svg';
 import { setupArrows } from './elements/arrows.ts';
+import { setupCheckboxes } from './elements/checkboxes.ts';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
 const styles = getComputedStyle(app);
@@ -19,14 +20,22 @@ app.innerHTML = `
     
     <div class="game__actions">
       <div class="settings">
-        <button  class="settings__button" popovertarget="settings-popover" title="Настройки">
+        <button class="settings__button" popovertarget="settings-popover" title="Настройки">
           <img class="settings__icon" src="${settings}" alt="Settings icon" width="30">
         </button>
         
         <div class="settings__popover" popover id="settings-popover">
           <span>Настройки</span>
           
-          sd
+          <label>
+            <input id="checkbox-view-path" type="checkbox" checked>
+            Показать путь
+          </label>
+          
+          <label title="Нажми на точку пути">
+            <input id="checkbox-fast-movement" type="checkbox" checked>
+            Быстрое перемещение
+          </label>
         </div>
       </div>
     
@@ -73,19 +82,25 @@ const canvasPoint = document.querySelector<HTMLCanvasElement>('#canvas-point')!;
 const button = document.querySelector<HTMLButtonElement>('#button')!;
 const select = document.querySelector<HTMLSelectElement>('#select')!;
 const preloader = document.querySelector<HTMLOrSVGImageElement>('#preloader')!;
+const checkboxViewPath = document.querySelector<HTMLInputElement>('#checkbox-view-path')!;
+const checkboxFastMovement = document.querySelector<HTMLInputElement>('#checkbox-fast-movement')!;
 
 const top = document.querySelector<HTMLButtonElement>('#top')!;
 const left = document.querySelector<HTMLButtonElement>('#left')!;
 const bottom = document.querySelector<HTMLButtonElement>('#bottom')!;
 const right = document.querySelector<HTMLButtonElement>('#right')!;
 
-const isTouchDevice = !!('ontouchstart' in window || navigator.maxTouchPoints);
-console.log(isTouchDevice);
+// const isTouchDevice = !!('ontouchstart' in window || navigator.maxTouchPoints);
 
 const { drawLabyrinth, redrawLabyrinth, drawPoint } = await setupCanvas({
   canvasBackground,
   canvasPath,
   canvasPoint,
+});
+setupCheckboxes({
+  checkboxViewPath,
+  canvasPath,
+  checkboxFastMovement,
 });
 setupButton(button, redrawLabyrinth);
 setupSelect(select, redrawLabyrinth);
@@ -105,5 +120,4 @@ preloader.style.display = 'none';
 // 5 - todo: скачать картинку лабиринта
 // 6 - todo: добавить описание проекта и ссылку на гитхаб в правом верхнем углу
 // 7 - todo: быстрое перемещение при клике по точке из пути
-// 8 - todo: настройки - показывать/скрыть путь, от этого будет зависеть будет ли быстрое перемещение
 // 9 - todo: подсчет времени вкл/выкл

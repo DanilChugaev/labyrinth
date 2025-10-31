@@ -2,6 +2,10 @@ import { generateLabyrinth } from '../generator.ts';
 import { getLabyrinthSize } from '../utils/storage.ts';
 import type { PointDirection } from '../types.ts';
 
+const figureColor = window
+  .getComputedStyle(window.document.body)
+  .getPropertyValue('--figure-color');
+
 async function draw({
   size,
   cellSize,
@@ -112,7 +116,7 @@ function drawPath({
     0,
     endPointAngle,
   );
-  context.fillStyle = 'blue'; // todo: цвет брать из --figure-color
+  context.fillStyle = figureColor;
   context.fill();
 }
 
