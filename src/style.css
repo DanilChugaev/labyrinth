@@ -261,6 +261,10 @@ body {
   display: flex;
 }
 
+label {
+  cursor: pointer;
+}
+
 @media (max-width: 629px) {
   .header {
     flex-direction: column;

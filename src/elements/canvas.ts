@@ -2,10 +2,6 @@ import { generateLabyrinth } from '../generator.ts';
 import { getLabyrinthSize } from '../utils/storage.ts';
 import type { PointDirection } from '../types.ts';
 
-const figureColor = window
-  .getComputedStyle(window.document.body)
-  .getPropertyValue('--figure-color');
-
 async function draw({
   size,
   cellSize,
@@ -100,6 +96,7 @@ function drawPath({
   initialPointCoord,
   pointRadius,
   endPointAngle,
+  pathColor,
 }: {
   cellSize: number;
   context: CanvasRenderingContext2D;
@@ -107,6 +104,7 @@ function drawPath({
   initialPointCoord: number;
   pointRadius: number;
   endPointAngle: number;
+  pathColor: string;
 }) {
   context.beginPath();
   context.arc(
@@ -116,7 +114,7 @@ function drawPath({
     0,
     endPointAngle,
   );
-  context.fillStyle = figureColor;
+  context.fillStyle = pathColor;
   context.fill();
 }
 
@@ -129,6 +127,7 @@ function drawPointOnCanvas({
   initialPointCoord,
   pointRadius,
   endPointAngle,
+  pathColor,
   direction,
 }: {
   size: number;
@@ -139,6 +138,7 @@ function drawPointOnCanvas({
   initialPointCoord: number;
   pointRadius: number;
   endPointAngle: number;
+  pathColor: string;
   direction?: PointDirection;
 }) {
   if (direction) {
@@ -152,6 +152,7 @@ function drawPointOnCanvas({
     initialPointCoord,
     pointRadius,
     endPointAngle,
+    pathColor,
   });
 
   pointContext.clearRect(0, 0, size * cellSize, size * cellSize);
@@ -208,10 +209,12 @@ export async function setupCanvas({
   canvasBackground,
   canvasPath,
   canvasPoint,
+  pathColor,
 }: {
   canvasBackground: HTMLCanvasElement;
   canvasPath: HTMLCanvasElement;
   canvasPoint: HTMLCanvasElement;
+  pathColor: string;
 }) {
   const { size, canvasSize, cellSize } = getSizes();
 
@@ -264,6 +267,7 @@ export async function setupCanvas({
       pointRadius,
       endPointAngle,
       direction,
+      pathColor,
     });
 
   return {
