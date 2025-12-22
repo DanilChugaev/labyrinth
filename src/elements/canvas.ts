@@ -1,6 +1,7 @@
 import { generateLabyrinth } from '../generator.ts';
-import { getLabyrinthSize } from '../utils/storage.ts';
+import { getLabyrinthSize, loadBooleanStorageValue } from '../utils/storage.ts';
 import type { PointDirection } from '../types.ts';
+import { FAST_MOVEMENT_KEY } from '../constants.ts';
 
 async function draw({
   size,
@@ -280,6 +281,8 @@ export async function setupCanvas({
     });
 
   canvasPoint.addEventListener('click', event => {
+    if (!loadBooleanStorageValue(FAST_MOVEMENT_KEY, true)) return;
+
     const rect = canvasPoint.getBoundingClientRect();
 
     const x = Math.floor((event.clientX - rect.left) / cellSize);
