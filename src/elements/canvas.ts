@@ -60,6 +60,7 @@ async function draw({
   }
 
   context.stroke();
+  context.closePath();
 
   const end2 = performance.now();
   console.log(`Время отрисовки: ${end2 - start2} мс`);
@@ -166,6 +167,7 @@ function drawPointOnCanvas({
   });
 
   pointContext.clearRect(0, 0, size * cellSize, size * cellSize);
+
   pointContext.beginPath();
   pointContext.arc(
     currentX * cellSize + initialPointCoord,
@@ -176,6 +178,35 @@ function drawPointOnCanvas({
   );
   pointContext.fillStyle = 'red';
   pointContext.fill();
+  pointContext.closePath();
+}
+
+function drawTarget({
+  size,
+  cellSize,
+  context,
+  pointRadius,
+  initialPointCoord,
+  endPointAngle,
+}: {
+  size: number;
+  cellSize: number;
+  context: CanvasRenderingContext2D;
+  pointRadius: number;
+  initialPointCoord: number;
+  endPointAngle: number;
+}) {
+  context.beginPath();
+  context.arc(
+    (size - 1) * cellSize + initialPointCoord,
+    (size - 1) * cellSize + initialPointCoord,
+    pointRadius,
+    0,
+    endPointAngle,
+  );
+  context.fillStyle = 'green';
+  context.fill();
+  context.closePath();
 }
 
 function getSizes() {
@@ -197,8 +228,8 @@ function getSizes() {
   const cellSizeHeight = Math.floor(usefulHeight / size);
   const canvasHeight = cellSizeHeight * size;
 
-  let canvasSize = 0;
-  let cellSize = 0;
+  let canvasSize: number;
+  let cellSize: number;
 
   if (usefulWidth < usefulHeight) {
     canvasSize = canvasWidth;
@@ -249,7 +280,7 @@ export async function setupCanvas({
   const end = performance.now();
   console.log(`Время генерации: ${end - start} мс`);
 
-  const drawLabyrinth = () =>
+  const drawLabyrinth = () => {
     draw({
       size,
       cellSize,
@@ -257,6 +288,16 @@ export async function setupCanvas({
       structure,
       totalCells,
     });
+
+    drawTarget({
+      size,
+      cellSize,
+      context: backgroundContext,
+      pointRadius,
+      initialPointCoord,
+      endPointAngle,
+    });
+  };
 
   const redrawLabyrinth = () => {
     window.location.reload();

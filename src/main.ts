@@ -18,6 +18,8 @@ async function main() {
         <h1 class="header__title">Labyrinth</h1>
       </div>
       
+      <h2>Дойди до цели!</h2>
+      
       <div class="game__actions">
         <div class="settings">
           <button class="settings__button" popovertarget="settings-popover" title="Настройки">
