@@ -90,6 +90,8 @@ const directionMap = {
   },
 };
 
+const pathBuffer: Record<number, Set<number>> = {};
+
 function drawPath({
   cellSize,
   context,
@@ -116,6 +118,13 @@ function drawPath({
   );
   context.fillStyle = pathColor;
   context.fill();
+
+  // todo вынести в отдельный метод
+  if (!pathBuffer[currentY]) {
+    pathBuffer[currentY] = new Set();
+  }
+
+  pathBuffer[currentY].add(currentX);
 }
 
 function drawPointOnCanvas({
@@ -269,6 +278,19 @@ export async function setupCanvas({
       direction,
       pathColor,
     });
+
+  canvasPoint.addEventListener('click', event => {
+    const rect = canvasPoint.getBoundingClientRect();
+
+    const x = Math.floor((event.clientX - rect.left) / cellSize);
+    const y = Math.floor((event.clientY - rect.top) / cellSize);
+
+    if (pathBuffer[y]?.has(x)) {
+      currentX = x;
+      currentY = y;
+      drawPoint();
+    }
+  });
 
   return {
     drawLabyrinth,
