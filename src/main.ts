@@ -1,15 +1,43 @@
 import './style.css';
+import labyrinth from '/labyrinth.svg';
+import settings from '/settings.svg';
+
 import { setupCanvas } from './elements/canvas.ts';
 import { setupButton } from './elements/button.ts';
 import { setupSelect } from './elements/select.ts';
-import labyrinth from '/labyrinth.svg';
-import settings from '/settings.svg';
 import { setupArrows } from './elements/arrows.ts';
 import { setupCheckboxes } from './elements/checkboxes.ts';
+
+import { Preloader } from './components/Preloader.ts';
+import { Settings } from './components/Settings.ts';
+import type { SettingsItem } from './types.ts';
 
 async function main() {
   const app = document.querySelector<HTMLDivElement>('#app')!;
   const figureColor = getComputedStyle(app).getPropertyValue('--figure-color');
+
+  const preloaderId = 'preloader';
+  const checkboxViewPathId = 'checkbox-view-path';
+  const checkboxFastMovementId = 'checkbox-fast-movement';
+  const checkboxTimerId = 'checkbox-timer';
+
+  const settingsItems: SettingsItem[] = [
+    {
+      id: checkboxViewPathId,
+      label: 'Показать путь',
+      title: '',
+    },
+    {
+      id: checkboxFastMovementId,
+      label: 'Быстрое перемещение',
+      title: 'Нажми на точку пути',
+    },
+    {
+      id: checkboxTimerId,
+      label: 'Таймер',
+      title: '',
+    },
+  ];
 
   app.innerHTML = `
     <div class="header">
@@ -21,25 +49,10 @@ async function main() {
       <h2>Дойди до цели!</h2>
       
       <div class="game__actions">
-        <div class="settings">
-          <button class="settings__button" popovertarget="settings-popover" title="Настройки">
-            <img class="settings__icon" src="${settings}" alt="Settings icon" width="30">
-          </button>
-          
-          <div class="settings__popover" popover id="settings-popover">
-            <span>Настройки</span>
-            
-            <label>
-              <input id="checkbox-view-path" type="checkbox" checked>
-              Показать путь
-            </label>
-            
-            <label title="Нажми на точку пути">
-              <input id="checkbox-fast-movement" type="checkbox" checked>
-              Быстрое перемещение
-            </label>
-          </div>
-        </div>
+        ${Settings({
+          icon: settings,
+          items: settingsItems,
+        })}
       
         <div class="game__select-container">
           <select class="game__select" id="select" disabled></select>
@@ -51,18 +64,10 @@ async function main() {
     
     <div class="game">
       <div class="game__canvas-container">
-        <svg id="preloader" class="game__preloader" width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="50" cy="50" r="40" fill="none" stroke="${figureColor}" stroke-width="8" stroke-linecap="round" stroke-dasharray="125.6 125.6">
-            <animateTransform
-              attributeName="transform"
-              type="rotate"
-              from="0 50 50"
-              to="360 50 50"
-              dur="1s"
-              repeatCount="indefinite"
-            />
-          </circle>
-        </svg>
+        ${Preloader({
+          id: preloaderId,
+          color: figureColor,
+        })}
         
         <canvas id="canvas-background" class="canvas-background"></canvas>
         <canvas id="canvas-path" class="canvas-path"></canvas>
@@ -88,9 +93,12 @@ async function main() {
     canvasPoint: document.querySelector<HTMLCanvasElement>('#canvas-point')!,
     button: document.querySelector<HTMLButtonElement>('#button')!,
     select: document.querySelector<HTMLSelectElement>('#select')!,
-    preloader: document.querySelector<SVGSVGElement>('#preloader')!,
-    checkboxViewPath: document.querySelector<HTMLInputElement>('#checkbox-view-path')!,
-    checkboxFastMovement: document.querySelector<HTMLInputElement>('#checkbox-fast-movement')!,
+    preloader: document.querySelector<SVGSVGElement>(`#${preloaderId}`)!,
+
+    checkboxViewPath: document.querySelector<HTMLInputElement>(`#${checkboxViewPathId}`)!,
+    checkboxFastMovement: document.querySelector<HTMLInputElement>(`#${checkboxFastMovementId}`)!,
+    checkboxTimer: document.querySelector<HTMLInputElement>(`#${checkboxTimerId}`)!,
+
     top: document.querySelector<HTMLButtonElement>('#top')!,
     left: document.querySelector<HTMLButtonElement>('#left')!,
     bottom: document.querySelector<HTMLButtonElement>('#bottom')!,
