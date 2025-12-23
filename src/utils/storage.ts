@@ -1,6 +1,7 @@
-import { DEFAULT_CANVAS_SIZE, LABYRINTH_SIZE_KEY } from '../constants.ts';
+import { DEFAULT_CANVAS_SIZE, GAME_STATE_KEY, LABYRINTH_SIZE_KEY } from '../constants.ts';
+import type { GameState } from '../types.ts';
 
-export function saveStorageValue(key: string, value: string) {
+export function saveStorageValue<T extends string>(key: string, value: T) {
   localStorage.setItem(key, value);
 }
 
@@ -8,6 +9,7 @@ export function getStorageValue(key: string) {
   return localStorage.getItem(key);
 }
 
+/** --- Размер лабиринта --- **/
 export function getLabyrinthSize(): string {
   return getStorageValue(LABYRINTH_SIZE_KEY) ?? DEFAULT_CANVAS_SIZE.toString();
 }
@@ -15,8 +17,25 @@ export function getLabyrinthSize(): string {
 export function setLabyrinthSize(size: number) {
   saveStorageValue(LABYRINTH_SIZE_KEY, String(size || DEFAULT_CANVAS_SIZE));
 }
+/** ------------------------ **/
 
+/** --- Булевы значения --- **/
 export function loadBooleanStorageValue(key: string, defaultValue: boolean): boolean {
   const stored = getStorageValue(key);
   return stored === null ? defaultValue : stored === 'true';
 }
+/** ----------------------- **/
+
+/** --- Состояния игры --- **/
+export function checkGameState(gameState: GameState): boolean {
+  return getStorageValue(GAME_STATE_KEY) === gameState;
+}
+
+export function gameStart() {
+  saveStorageValue<GameState>(GAME_STATE_KEY, 'play');
+}
+
+export function gameStop() {
+  saveStorageValue<GameState>(GAME_STATE_KEY, 'win');
+}
+/** ---------------------- **/

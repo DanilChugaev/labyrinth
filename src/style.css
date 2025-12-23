@@ -90,6 +90,22 @@ body {
   position: relative;
 }
 
+.game__result {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 2;
+  font-size: 40px;
+  font-weight: 700;
+  text-align: center;
+}
+
 .canvas-background {
   z-index: 0;
 }
@@ -277,6 +293,10 @@ label {
   .game__select,
   .game__button {
     max-width: var(--full-width);
+  }
+
+  .game__result {
+    font-size: 30px;
   }
 }
 

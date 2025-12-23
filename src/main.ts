@@ -67,6 +67,10 @@ async function main() {
         <canvas id="canvas-background" class="canvas-background"></canvas>
         <canvas id="canvas-path" class="canvas-path"></canvas>
         <canvas id="canvas-point" class="canvas-point"></canvas>
+        
+        <div id="result-container" class="game__result">
+          Цель достигнута!
+        </div>
       </div>
       
       <div class="game__arrows">
@@ -91,6 +95,7 @@ async function main() {
     left: document.querySelector<HTMLButtonElement>('#left')!,
     bottom: document.querySelector<HTMLButtonElement>('#bottom')!,
     right: document.querySelector<HTMLButtonElement>('#right')!,
+    resultContainer: document.querySelector<HTMLDivElement>('#result-container')!,
   };
 
   const { drawLabyrinth, redrawLabyrinth, drawPoint } = await setupCanvas({
@@ -98,6 +103,7 @@ async function main() {
     canvasPath: elements.canvasPath,
     canvasPoint: elements.canvasPoint,
     pathColor: figureColor,
+    resultContainer: elements.resultContainer,
   });
 
   setupCheckboxes({

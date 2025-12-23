@@ -1,5 +1,11 @@
 import { generateLabyrinth } from '../generator.ts';
-import { getLabyrinthSize, loadBooleanStorageValue } from '../utils/storage.ts';
+import {
+  checkGameState,
+  gameStart,
+  gameStop,
+  getLabyrinthSize,
+  loadBooleanStorageValue,
+} from '../utils/storage.ts';
 import type { PointDirection } from '../types.ts';
 import { FAST_MOVEMENT_KEY } from '../constants.ts';
 
@@ -139,6 +145,7 @@ function drawPointOnCanvas({
   pointRadius,
   endPointAngle,
   pathColor,
+  resultContainer,
   direction,
 }: {
   size: number;
@@ -150,6 +157,7 @@ function drawPointOnCanvas({
   pointRadius: number;
   endPointAngle: number;
   pathColor: string;
+  resultContainer: HTMLDivElement;
   direction?: PointDirection;
 }) {
   if (direction) {
@@ -179,6 +187,11 @@ function drawPointOnCanvas({
   pointContext.fillStyle = 'red';
   pointContext.fill();
   pointContext.closePath();
+
+  if (currentX === size - 1 && currentY === size - 1) {
+    gameStop();
+    resultContainer.style.display = 'flex';
+  }
 }
 
 function drawTarget({
@@ -251,12 +264,16 @@ export async function setupCanvas({
   canvasPath,
   canvasPoint,
   pathColor,
+  resultContainer,
 }: {
   canvasBackground: HTMLCanvasElement;
   canvasPath: HTMLCanvasElement;
   canvasPoint: HTMLCanvasElement;
   pathColor: string;
+  resultContainer: HTMLDivElement;
 }) {
+  gameStart();
+
   const { size, canvasSize, cellSize } = getSizes();
 
   canvasBackground.width = canvasSize;
@@ -307,7 +324,9 @@ export async function setupCanvas({
   const pointRadius = cellSize / 3;
   const endPointAngle = 2 * Math.PI;
 
-  const drawPoint = (direction?: PointDirection) =>
+  const drawPoint = (direction?: PointDirection) => {
+    if (checkGameState('win')) return;
+
     drawPointOnCanvas({
       size,
       cellSize,
@@ -317,9 +336,11 @@ export async function setupCanvas({
       initialPointCoord,
       pointRadius,
       endPointAngle,
+      resultContainer,
       direction,
       pathColor,
     });
+  };
 
   canvasPoint.addEventListener('click', event => {
     if (!loadBooleanStorageValue(FAST_MOVEMENT_KEY, true)) return;
