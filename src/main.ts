@@ -1,6 +1,5 @@
-import './style.css';
+import './styles/common.css';
 import labyrinth from '/labyrinth.svg';
-import settings from '/settings.svg';
 
 import { setupCanvas } from './elements/canvas.ts';
 import { setupButton } from './elements/button.ts';
@@ -49,10 +48,7 @@ async function main() {
       <h2>Дойди до цели!</h2>
       
       <div class="game__actions">
-        ${Settings({
-          icon: settings,
-          items: settingsItems,
-        })}
+        ${Settings({ items: settingsItems })}
       
         <div class="game__select-container">
           <select class="game__select" id="select" disabled></select>

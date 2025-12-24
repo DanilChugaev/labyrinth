@@ -1,0 +1,58 @@
+.settings {
+    display: flex;
+    position: relative;
+}
+
+.settings__button {
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+    transition: filter 0.3s;
+}
+
+.settings__button:hover,
+.settings__button:focus {
+    outline: none;
+    filter: var(--icon-invert-hover);
+}
+
+.settings__icon {
+    filter: var(--icon-invert);
+}
+
+.settings__popover {
+    flex-direction: column;
+    position: absolute;
+    inset: unset;
+    width: 300px;
+    padding: var(--padding);
+    margin: 0;
+    top: 90px;
+    right: var(--padding);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+}
+
+.settings__popover:popover-open {
+    display: flex;
+}
+
+.settings__label {
+    padding: 5px 0;
+}
+
+.settings__title {
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+@media (max-width: 869px) {
+    .settings__popover {
+        left: 0;
+        right: 0;
+        top: 210px;
+        width: auto;
+    }
+}
