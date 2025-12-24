@@ -48,7 +48,7 @@ body {
   align-items: center;
   gap: var(--gap);
   padding: var(--padding);
-  min-height: calc(var(--full-height) - var(--padding) * 2);
+  min-height: var(--full-height);
 }
 
 .header {
