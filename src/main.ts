@@ -1,5 +1,4 @@
 import './styles/common.css';
-import labyrinth from '/labyrinth.svg';
 
 import { setupCanvas } from './elements/canvas.ts';
 import { setupButton } from './elements/button.ts';
@@ -10,6 +9,7 @@ import { setupCheckboxes } from './elements/checkboxes.ts';
 import { Preloader } from './components/Preloader.ts';
 import { Settings } from './components/Settings.ts';
 import type { SettingsItem } from './types.ts';
+import { Logo } from './components/Logo.ts';
 
 async function main() {
   const app = document.querySelector<HTMLDivElement>('#app')!;
@@ -40,10 +40,7 @@ async function main() {
 
   app.innerHTML = `
     <div class="header">
-      <div class="header__logo-container">
-        <img class="header__logo" src="${labyrinth}" alt="Labyrinth icon" width="50">
-        <h1 class="header__title">Labyrinth</h1>
-      </div>
+      ${Logo()}
       
       <h2>Дойди до цели!</h2>
       

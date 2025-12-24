@@ -1,0 +1,17 @@
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--gap);
+}
+
+.logo__img {
+    filter: var(--icon-invert);
+}
+
+.logo__title {
+    font-size: 3.2em;
+    line-height: 1.1;
+    margin: 0;
+    color: var(--color);
+}
