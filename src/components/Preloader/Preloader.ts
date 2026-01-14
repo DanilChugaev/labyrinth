@@ -1,4 +1,4 @@
-import '../styles/preloader.css';
+import './preloader.css';
 
 export function Preloader({ id, color }: { id: string; color: string }) {
   return `<svg id="${id}" class="preloader" width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">

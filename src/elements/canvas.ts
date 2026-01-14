@@ -227,8 +227,8 @@ function getSizes() {
 
   const padding = 24;
   const gap = 16;
-  const footerHeight = 56;
-  const actionsHeight = 0;
+  const headerHeight = 56;
+  const timerHeight = 48;
   const arrowsHeight = 114;
   const size = Number(getLabyrinthSize());
 
@@ -237,7 +237,7 @@ function getSizes() {
   const canvasWidth = cellSizeWidth * size;
 
   const usefulHeight =
-    windowHeight - (2 * padding + 2 * gap) - footerHeight - actionsHeight - arrowsHeight;
+    windowHeight - (3 * padding + 3 * gap) - headerHeight - timerHeight - arrowsHeight;
   const cellSizeHeight = Math.floor(usefulHeight / size);
   const canvasHeight = cellSizeHeight * size;
 

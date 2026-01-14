@@ -1,6 +1,6 @@
-import '../styles/settings.css';
+import './settings.css';
 import settings from '/settings.svg';
-import type { SettingsItem } from '../types.ts';
+import type { SettingsItem } from '../../types.ts';
 
 export function Settings({ items }: { items: SettingsItem[] }) {
   const list = items.map(

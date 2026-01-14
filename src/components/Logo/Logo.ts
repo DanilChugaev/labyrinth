@@ -1,4 +1,4 @@
-import '../styles/logo.css';
+import './logo.css';
 import labyrinth from '/labyrinth.svg';
 
 export function Logo() {

@@ -6,10 +6,11 @@ import { setupSelect } from './elements/select.ts';
 import { setupArrows } from './elements/arrows.ts';
 import { setupCheckboxes } from './elements/checkboxes.ts';
 
-import { Preloader } from './components/Preloader.ts';
-import { Settings } from './components/Settings.ts';
+import { Preloader } from './components/Preloader/Preloader.ts';
+import { Settings } from './components/Settings/Settings.ts';
 import type { SettingsItem } from './types.ts';
-import { Logo } from './components/Logo.ts';
+import { Logo } from './components/Logo/Logo.ts';
+import { Timer } from './components/Timer/Timer.ts';
 
 async function main() {
   const app = document.querySelector<HTMLDivElement>('#app')!;
@@ -54,6 +55,8 @@ async function main() {
         <button class="game__button" id="button" type="button" disabled>Новый лабиринт</button>
       </div>
     </div>
+    
+    ${Timer()}
     
     <div class="game">
       <div class="game__canvas-container">
@@ -108,9 +111,10 @@ async function main() {
   });
 
   setupCheckboxes({
-    checkboxViewPath: elements.checkboxViewPath,
     canvasPath: elements.canvasPath,
+    checkboxViewPath: elements.checkboxViewPath,
     checkboxFastMovement: elements.checkboxFastMovement,
+    // checkboxTimer: elements.checkboxTimer,
   });
 
   setupButton(elements.button, redrawLabyrinth);
