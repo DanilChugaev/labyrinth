@@ -7,3 +7,4 @@ export const VIEW_PATH_KEY = 'VIEW_PATH_KEY';
 export const FAST_MOVEMENT_KEY = 'FAST_MOVEMENT_KEY';
 export const LABYRINTH_SIZE_KEY = 'LABYRINTH_SIZE_KEY';
 export const GAME_STATE_KEY = 'GAME_STATE_KEY';
+export const TIMER_KEY = 'TIMER_KEY';

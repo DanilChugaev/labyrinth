@@ -4,10 +4,9 @@ import { setupCanvas } from './elements/canvas.ts';
 import { setupButton } from './elements/button.ts';
 import { setupSelect } from './elements/select.ts';
 import { setupArrows } from './elements/arrows.ts';
-import { setupCheckboxes } from './elements/checkboxes.ts';
 
 import { Preloader } from './components/Preloader/Preloader.ts';
-import { Settings } from './components/Settings/Settings.ts';
+import { Settings, setupSettingsCheckboxes } from './components/Settings/Settings.ts';
 import type { SettingsItem } from './types.ts';
 import { Logo } from './components/Logo/Logo.ts';
 import { Timer } from './components/Timer/Timer.ts';
@@ -20,6 +19,10 @@ async function main() {
   const checkboxViewPathId = 'checkbox-view-path';
   const checkboxFastMovementId = 'checkbox-fast-movement';
   const checkboxTimerId = 'checkbox-timer';
+
+  const timerContainerId = 'timer-container-id';
+  const currentTimeId = 'current-time-id';
+  const oldTimeId = 'old-time-id';
 
   const settingsItems: SettingsItem[] = [
     {
@@ -56,7 +59,7 @@ async function main() {
       </div>
     </div>
     
-    ${Timer()}
+    ${Timer({ timerContainerId, currentTimeId, oldTimeId })}
     
     <div class="game">
       <div class="game__canvas-container">
@@ -90,6 +93,7 @@ async function main() {
     button: document.querySelector<HTMLButtonElement>('#button')!,
     select: document.querySelector<HTMLSelectElement>('#select')!,
     preloader: document.querySelector<SVGSVGElement>(`#${preloaderId}`)!,
+    timerContainer: document.querySelector<HTMLDivElement>(`#${timerContainerId}`)!,
 
     checkboxViewPath: document.querySelector<HTMLInputElement>(`#${checkboxViewPathId}`)!,
     checkboxFastMovement: document.querySelector<HTMLInputElement>(`#${checkboxFastMovementId}`)!,
@@ -110,11 +114,12 @@ async function main() {
     resultContainer: elements.resultContainer,
   });
 
-  setupCheckboxes({
+  setupSettingsCheckboxes({
     canvasPath: elements.canvasPath,
+    timerContainer: elements.timerContainer,
     checkboxViewPath: elements.checkboxViewPath,
     checkboxFastMovement: elements.checkboxFastMovement,
-    // checkboxTimer: elements.checkboxTimer,
+    checkboxTimer: elements.checkboxTimer,
   });
 
   setupButton(elements.button, redrawLabyrinth);
