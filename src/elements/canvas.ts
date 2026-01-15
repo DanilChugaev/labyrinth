@@ -7,7 +7,36 @@ import {
   loadBooleanStorageValue,
 } from '../utils/storage.ts';
 import type { PointDirection } from '../types.ts';
-import { FAST_MOVEMENT_KEY } from '../constants.ts';
+import { FAST_MOVEMENT_KEY, TIMER_KEY } from '../constants.ts';
+import { timerStart, timerStop } from '../components/Timer/Timer.ts';
+
+let currentY = 0;
+let currentX = 0;
+
+const isViewTimer = loadBooleanStorageValue(TIMER_KEY, true);
+const directionMap = {
+  top: (structure: Uint8Array, size: number) => {
+    if ((structure[currentY * size + currentX] & (1 << 0)) === 0) {
+      currentY -= 1;
+    }
+  },
+  right: (structure: Uint8Array, size: number) => {
+    if ((structure[currentY * size + currentX] & (1 << 1)) === 0) {
+      currentX += 1;
+    }
+  },
+  bottom: (structure: Uint8Array, size: number) => {
+    if ((structure[currentY * size + currentX] & (1 << 2)) === 0) {
+      currentY += 1;
+    }
+  },
+  left: (structure: Uint8Array, size: number) => {
+    if ((structure[currentY * size + currentX] & (1 << 3)) === 0) {
+      currentX -= 1;
+    }
+  },
+};
+const pathBuffer: Record<number, Set<number>> = {};
 
 async function draw({
   size,
@@ -71,34 +100,6 @@ async function draw({
   const end2 = performance.now();
   console.log(`Время отрисовки: ${end2 - start2} мс`);
 }
-
-let currentY = 0;
-let currentX = 0;
-
-const directionMap = {
-  top: (structure: Uint8Array, size: number) => {
-    if ((structure[currentY * size + currentX] & (1 << 0)) === 0) {
-      currentY -= 1;
-    }
-  },
-  right: (structure: Uint8Array, size: number) => {
-    if ((structure[currentY * size + currentX] & (1 << 1)) === 0) {
-      currentX += 1;
-    }
-  },
-  bottom: (structure: Uint8Array, size: number) => {
-    if ((structure[currentY * size + currentX] & (1 << 2)) === 0) {
-      currentY += 1;
-    }
-  },
-  left: (structure: Uint8Array, size: number) => {
-    if ((structure[currentY * size + currentX] & (1 << 3)) === 0) {
-      currentX -= 1;
-    }
-  },
-};
-
-const pathBuffer: Record<number, Set<number>> = {};
 
 function drawPath({
   cellSize,
@@ -191,6 +192,10 @@ function drawPointOnCanvas({
   if (currentX === size - 1 && currentY === size - 1) {
     gameStop();
     resultContainer.style.display = 'flex';
+
+    if (isViewTimer) {
+      timerStop();
+    }
   }
 }
 
@@ -273,6 +278,10 @@ export async function setupCanvas({
   resultContainer: HTMLDivElement;
 }) {
   gameStart();
+
+  if (isViewTimer) {
+    timerStart();
+  }
 
   const { size, canvasSize, cellSize } = getSizes();
 

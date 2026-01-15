@@ -21,8 +21,6 @@ async function main() {
   const checkboxTimerId = 'checkbox-timer';
 
   const timerContainerId = 'timer-container-id';
-  const currentTimeId = 'current-time-id';
-  const oldTimeId = 'old-time-id';
 
   const settingsItems: SettingsItem[] = [
     {
@@ -59,7 +57,7 @@ async function main() {
       </div>
     </div>
     
-    ${Timer({ timerContainerId, currentTimeId, oldTimeId })}
+    ${Timer(timerContainerId)}
     
     <div class="game">
       <div class="game__canvas-container">
