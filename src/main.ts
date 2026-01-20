@@ -10,6 +10,13 @@ import { Settings, setupSettingsCheckboxes } from './components/Settings/Setting
 import type { SettingsItem } from './types.ts';
 import { Logo } from './components/Logo/Logo.ts';
 import { Timer } from './components/Timer/Timer.ts';
+import { getLabyrinthSize, setLabyrinthSize } from './utils/storage.ts';
+import {
+  JUNIOR_MAX_CANVAS_SIZE,
+  JUNIOR_MIN_CANVAS_SIZE,
+  JUNIOR_STEP_CANVAS_SIZE,
+  STEP_CANVAS_SIZE,
+} from './constants.ts';
 
 async function main() {
   const app = document.querySelector<HTMLDivElement>('#app')!;
@@ -69,7 +76,12 @@ async function main() {
         <canvas id="canvas-point" class="canvas-point"></canvas>
         
         <div id="result-container" class="game__result">
-          Цель достигнута!
+          <div>Победа!</div>
+          
+          <div>
+            <button class="game__button" id="new-level" type="button">Новый лабиринт</button>
+            <button class="game__button" id="next-level" type="button">Следующий уровень</button>
+          </div>
         </div>
       </div>
       
@@ -87,6 +99,8 @@ async function main() {
     canvasPath: document.querySelector<HTMLCanvasElement>('#canvas-path')!,
     canvasPoint: document.querySelector<HTMLCanvasElement>('#canvas-point')!,
     button: document.querySelector<HTMLButtonElement>('#button')!,
+    newLevel: document.querySelector<HTMLButtonElement>('#new-level')!,
+    nextLevel: document.querySelector<HTMLButtonElement>('#next-level')!,
     select: document.querySelector<HTMLSelectElement>('#select')!,
     preloader: document.querySelector<SVGSVGElement>(`#${preloaderId}`)!,
     timerContainer: document.querySelector<HTMLDivElement>(`#${timerContainerId}`)!,
@@ -119,6 +133,19 @@ async function main() {
   });
 
   setupButton(elements.button, redrawLabyrinth);
+  setupButton(elements.newLevel, redrawLabyrinth);
+  setupButton(elements.nextLevel, () => {
+    let size = Number(getLabyrinthSize());
+
+    if (size >= JUNIOR_MIN_CANVAS_SIZE && size <= JUNIOR_MAX_CANVAS_SIZE) {
+      size += JUNIOR_STEP_CANVAS_SIZE;
+    } else {
+      size += STEP_CANVAS_SIZE;
+    }
+
+    setLabyrinthSize(size);
+    redrawLabyrinth();
+  });
   setupSelect(elements.select, redrawLabyrinth);
   setupArrows({
     top: elements.top,
