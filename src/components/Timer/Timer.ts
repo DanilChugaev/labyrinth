@@ -13,21 +13,15 @@ export function Timer(timerContainerId: string) {
   const style = isView ? 'display: flex' : 'display: none';
 
   return `<div id="${timerContainerId}" style="${style}" class="timer">
-            <div class="timer__container">
-              <div>Текущее время</div>
-              <div id="${currentTimeId}">00:00</div>
-            </div>
-            
-            <div class="timer__container">
-              <div>Лучшее время</div>
-              <div id="${bestTimeId}">00:00</div>
-            </div>
+            <span id="${currentTimeId}" title="Текущее время">00:00</span>
+            <span> / </span>
+            <span id="${bestTimeId}" title="Лучшее время">00:00</span>
           </div>`;
 }
 
 export function timerStart() {
-  const currentTimeEl = document.querySelector<HTMLDivElement>(`#${currentTimeId}`)!;
-  const oldTimeEl = document.querySelector<HTMLDivElement>(`#${bestTimeId}`)!;
+  const currentTimeEl = document.querySelector<HTMLSpanElement>(`#${currentTimeId}`)!;
+  const oldTimeEl = document.querySelector<HTMLSpanElement>(`#${bestTimeId}`)!;
 
   const oldTime = getTimer();
 

@@ -12,8 +12,8 @@
 
   --bg-color: #242424;
   --color: rgba(255, 255, 255, 0.87);
-  --gap: 16px;
-  --padding: 24px;
+  --gap: 8px;
+  --padding: 16px;
   --icon-invert: invert(0);
   --icon-invert-hover: invert(0.3);
   --min-width: 320px;
@@ -82,6 +82,7 @@ body {
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.7);
+  color: white;
   z-index: 2;
   font-size: 40px;
   font-weight: 700;
@@ -226,10 +227,21 @@ label {
   .game__select,
   .game__button {
     max-width: var(--full-width);
+    font-size: 12px;
   }
 
   .game__result {
     font-size: 30px;
+  }
+
+  .logo {
+    order: 1;
+  }
+  .game__actions {
+    order: 2;
+  }
+  .timer {
+    order: 3;
   }
 }
 

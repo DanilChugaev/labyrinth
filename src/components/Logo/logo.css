@@ -15,3 +15,14 @@
     margin: 0;
     color: var(--color);
 }
+
+@media (max-width: 869px) {
+    .logo__img {
+        width: 25px;
+        height: 25px;
+    }
+
+    .logo__title {
+        font-size: 2em;
+    }
+}

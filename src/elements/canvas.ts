@@ -230,10 +230,9 @@ function drawTarget({
 function getSizes() {
   const { innerWidth: windowWidth, innerHeight: windowHeight } = window;
 
-  const padding = 24;
-  const gap = 16;
+  const padding = 16;
+  const gap = 8;
   const headerHeight = 56;
-  const timerHeight = 48;
   const arrowsHeight = 114;
   const size = Number(getLabyrinthSize());
 
@@ -241,8 +240,7 @@ function getSizes() {
   const cellSizeWidth = Math.floor(usefulWidth / size);
   const canvasWidth = cellSizeWidth * size;
 
-  const usefulHeight =
-    windowHeight - (3 * padding + 3 * gap) - headerHeight - timerHeight - arrowsHeight;
+  const usefulHeight = windowHeight - (2 * padding + 2 * gap) - headerHeight - arrowsHeight;
   const cellSizeHeight = Math.floor(usefulHeight / size);
   const canvasHeight = cellSizeHeight * size;
 

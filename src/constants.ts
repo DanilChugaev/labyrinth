@@ -1,5 +1,8 @@
 export const DEFAULT_CANVAS_SIZE = 10;
-export const MIN_CANVAS_SIZE = 5;
+export const JUNIOR_MIN_CANVAS_SIZE = 2;
+export const JUNIOR_MAX_CANVAS_SIZE = 19;
+export const JUNIOR_STEP_CANVAS_SIZE = 1;
+export const MIN_CANVAS_SIZE = 20;
 export const MAX_CANVAS_SIZE = 300;
 export const STEP_CANVAS_SIZE = 5;
 export const DEFAULT_TIMER_VALUE = 0;

@@ -44,7 +44,7 @@ async function main() {
     <div class="header">
       ${Logo()}
       
-      <h2>Дойди до цели!</h2>
+      ${Timer(timerContainerId)}
       
       <div class="game__actions">
         ${Settings({ items: settingsItems })}
@@ -56,8 +56,6 @@ async function main() {
         <button class="game__button" id="button" type="button" disabled>Новый лабиринт</button>
       </div>
     </div>
-    
-    ${Timer(timerContainerId)}
     
     <div class="game">
       <div class="game__canvas-container">
