@@ -7,10 +7,10 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'Labyrinth Game',
+        name: 'Labyrinth',
         short_name: 'Labyrinth',
         description: 'Procedural labyrinth game',
-        theme_color: '#000000',
+        theme_color: '#242424',
         icons: [
           {
             src: 'icon-192x192.png',

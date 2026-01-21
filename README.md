@@ -10,6 +10,7 @@ A labyrinth game where each level is unique
 - Controls: Use arrow keys `(↑ ← ↓ →)` to move the player through the labyrinth
 - Levels and Difficulty: Progress through levels with increasing complexity
 - Responsive Design: Works on desktop and mobile browsers
+- PWA: It works even without the Internet
 
 ## Run Locally
 
