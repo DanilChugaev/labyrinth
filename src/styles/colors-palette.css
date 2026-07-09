@@ -1,0 +1,77 @@
+:root {
+    /* ===== Цветовая палитра ===== */
+    /* Красные */
+    --color-red-primary: #e8685a;
+    --color-red-light: #f8a9a9;
+
+    /* Бирюзовые */
+    --color-teal-dark: #2cb8a8;
+
+    /* Фиолетовые */
+    --color-purple-primary: #a878c8;
+
+    /* Серые - тёмная тема */
+    --color-gray-primary: #e8e8f0;
+    --color-gray-border-dark: #2d3e6b;
+
+    /* Серые - светлая тема */
+    --color-gray-bg-light: #f0f2f5;
+    --color-gray-text-light: #1a1e28;
+    --color-gray-secondary-light: #4a5060;
+    --color-gray-result-light: #ffffff;
+    --color-gray-border-light: #c0c8d0;
+    --color-gray-hover-light: #90a0b0;
+
+    /* Серые - общие/нейтральные */
+    --color-gray-dark: #1a1e28;
+    --color-gray-result-dark: #e0e4e8;
+    --color-gray-border-default-dark: #2a3040;
+    --color-gray-hover-default-dark: #3a4560;
+
+    /* ===== Темная тема ===== */
+    /* Фон */
+    --bg-app: var(--color-gray-dark);                           /* Фон приложения */
+    --bg-canvas: var(--color-gray-primary);                     /* Фон лабиринта */
+
+    /* Текст */
+    --text-primary: var(--color-gray-primary);                  /* Основной текст */
+    --text-secondary: var(--color-gray-border-dark);            /* Вторичный текст */
+    --text-result: var(--color-gray-result-dark);               /* Текст на экране результата */
+
+    /* Границы */
+    --border-default: var(--color-gray-border-default-dark);    /* Тёмная граница */
+    --border-hover: var(--color-gray-hover-default-dark);       /* Hover граница */
+    --border-focus: var(--color-purple-primary);                /* Фиолетовый focus */
+    --shadow-focus: 0 0 0 3px rgba(168, 120, 200, 0.2);         /* Фиолетовая тень */
+
+    /* Canvas элементы */
+    --border-canvas-wall: var(--color-gray-border-dark);        /* Стены лабиринта */
+    --figure-color: var(--color-red-light);                     /* Путь/фигура */
+    --point-color: var(--color-red-primary);                    /* Точка игрока */
+    --target-color: var(--color-teal-dark);                     /* Целевая точка */
+
+    /* Иконки */
+    --icon-invert: invert(1);
+    --icon-invert-hover: invert(0.7);
+}
+
+/* ===== Светлая тема ===== */
+@media (prefers-color-scheme: light) {
+    :root {
+        /* Фон */
+        --bg-app: var(--color-gray-bg-light);
+
+        /* Текст */
+        --text-primary: var(--color-gray-text-light);
+        --text-secondary: var(--color-gray-secondary-light);
+        --text-result: var(--color-gray-result-light);
+
+        /* Границы */
+        --border-default: var(--color-gray-border-light);
+        --border-hover: var(--color-gray-hover-light);
+
+        /* Иконки */
+        --icon-invert: invert(0);
+        --icon-invert-hover: invert(0.3);
+    }
+}

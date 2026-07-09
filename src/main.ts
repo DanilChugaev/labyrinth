@@ -1,3 +1,4 @@
+import './styles/colors-palette.css';
 import './styles/common.css';
 
 import { setupCanvas } from './elements/canvas.ts';

@@ -27,12 +27,14 @@
     position: absolute;
     inset: unset;
     width: 300px;
+    background-color: var(--bg-app);
     padding: var(--padding);
     margin: 0;
     top: 90px;
     right: var(--padding);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
+    box-shadow: var(--shadow-focus);
 }
 
 .settings__popover:popover-open {

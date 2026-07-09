@@ -44,16 +44,20 @@ async function draw({
   context,
   structure,
   totalCells,
+  wallColor,
+  canvasBgColor,
 }: {
   size: number;
   cellSize: number;
   context: CanvasRenderingContext2D;
   structure: Uint8Array;
   totalCells: number;
+  wallColor: string;
+  canvasBgColor: string;
 }) {
   context.lineWidth = 1;
-  context.strokeStyle = '#000000';
-  context.fillStyle = '#f3f4f6';
+  context.strokeStyle = wallColor;
+  context.fillStyle = canvasBgColor;
 
   context.fillRect(0, 0, size * cellSize, size * cellSize);
 
@@ -146,6 +150,7 @@ function drawPointOnCanvas({
   pointRadius,
   endPointAngle,
   pathColor,
+  pointColor,
   resultContainer,
   direction,
 }: {
@@ -158,6 +163,7 @@ function drawPointOnCanvas({
   pointRadius: number;
   endPointAngle: number;
   pathColor: string;
+  pointColor: string;
   resultContainer: HTMLDivElement;
   direction?: PointDirection;
 }) {
@@ -185,7 +191,7 @@ function drawPointOnCanvas({
     0,
     endPointAngle,
   );
-  pointContext.fillStyle = 'red';
+  pointContext.fillStyle = pointColor;
   pointContext.fill();
   pointContext.closePath();
 
@@ -206,6 +212,7 @@ function drawTarget({
   pointRadius,
   initialPointCoord,
   endPointAngle,
+  targetColor,
 }: {
   size: number;
   cellSize: number;
@@ -213,6 +220,7 @@ function drawTarget({
   pointRadius: number;
   initialPointCoord: number;
   endPointAngle: number;
+  targetColor: string;
 }) {
   context.beginPath();
   context.arc(
@@ -222,7 +230,7 @@ function drawTarget({
     0,
     endPointAngle,
   );
-  context.fillStyle = 'green';
+  context.fillStyle = targetColor;
   context.fill();
   context.closePath();
 }
@@ -275,6 +283,11 @@ export async function setupCanvas({
   pathColor: string;
   resultContainer: HTMLDivElement;
 }) {
+  const styles = getComputedStyle(canvasBackground);
+  const wallColor = styles.getPropertyValue('--border-canvas-wall').trim();
+  const canvasBgColor = styles.getPropertyValue('--bg-canvas').trim();
+  const pointColor = styles.getPropertyValue('--point-color').trim();
+  const targetColor = styles.getPropertyValue('--target-color').trim();
   gameStart();
 
   if (isViewTimer) {
@@ -311,6 +324,8 @@ export async function setupCanvas({
       context: backgroundContext,
       structure,
       totalCells,
+      wallColor,
+      canvasBgColor,
     });
 
     drawTarget({
@@ -320,6 +335,7 @@ export async function setupCanvas({
       pointRadius,
       initialPointCoord,
       endPointAngle,
+      targetColor,
     });
   };
 
@@ -346,6 +362,7 @@ export async function setupCanvas({
       resultContainer,
       direction,
       pathColor,
+      pointColor,
     });
   };
 
