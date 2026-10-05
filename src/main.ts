@@ -77,8 +77,6 @@ async function main() {
          <canvas id="canvas-background" class="canvas-background"></canvas>
          <canvas id="canvas-path" class="canvas-path"></canvas>
          <canvas id="canvas-point" class="canvas-point"></canvas>
-
-         ${ZoomControls()}
         
         <div id="result-container" class="game__result">
           <div>Победа!</div>
@@ -90,11 +88,15 @@ async function main() {
         </div>
       </div>
       
-      <div class="game__arrows">
-        <button class="game__button game-button--top" id="top" type="button"><span>↑</span></button>
-        <button class="game__button game-button--left" id="left" type="button"><span>←</span></button>
-        <button class="game__button game-button--bottom" id="bottom" type="button"><span>↓</span></button>
-        <button class="game__button game-button--right" id="right" type="button"><span>→</span></button>
+      <div class="game__controls">
+        <div class="game__arrows">
+          <button class="game__button game-button--top" id="top" type="button"><span>↑</span></button>
+          <button class="game__button game-button--left" id="left" type="button"><span>←</span></button>
+          <button class="game__button game-button--bottom" id="bottom" type="button"><span>↓</span></button>
+          <button class="game__button game-button--right" id="right" type="button"><span>→</span></button>
+        </div>
+        
+        ${ZoomControls()}
       </div>
     </div>
   `;

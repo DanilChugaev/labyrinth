@@ -2,8 +2,8 @@
   display: flex;
   align-items: center;
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 0;
+  right: 0;
   gap: 2px;
   z-index: 3;
   padding: 4px;
@@ -14,12 +14,19 @@
   backdrop-filter: blur(8px);
 }
 
+@media (max-width: 579px) {
+  .zoom-controls {
+    position: static;
+    margin-bottom: 20px;
+  }
+}
+
 .zoom-controls__button,
 .zoom-controls__value {
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
+  width: 44px;
+  height: 44px;
   border: 0;
   border-radius: 4px;
   color: var(--color);

@@ -214,6 +214,21 @@ body {
   grid-area: right;
 }
 
+.game__controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  position: relative;
+  width: 100%;
+}
+
+@media (max-width: 579px) {
+  .game__controls {
+    flex-direction: column-reverse;
+  }
+}
+
 .game__arrows {
   display: grid;
   gap: 4px;
