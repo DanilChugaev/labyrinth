@@ -1,0 +1,65 @@
+.theme-switcher {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 8px 0 0;
+  border: 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.theme-switcher__legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.theme-switcher__label {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.theme-switcher__options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+.theme-switcher__option {
+  display: grid;
+  place-items: center;
+  min-height: 36px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.theme-switcher__input {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  opacity: 0;
+}
+
+.theme-switcher__icon {
+  color: var(--text-secondary);
+  font-size: 20px;
+  line-height: 1;
+}
+
+.theme-switcher__option:has(.theme-switcher__input:checked) {
+  border-color: var(--border-focus);
+  background-color: color-mix(in srgb, var(--border-focus) 15%, transparent);
+  box-shadow: 0 0 0 1px var(--border-focus);
+}
+
+.theme-switcher__option:has(.theme-switcher__input:checked) .theme-switcher__icon {
+  color: var(--color);
+}
+
+.theme-switcher__option:has(.theme-switcher__input:focus-visible) {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}

@@ -23,7 +23,6 @@ import {
 
 async function main() {
   const app = document.querySelector<HTMLDivElement>('#app')!;
-  const figureColor = getComputedStyle(app).getPropertyValue('--figure-color');
 
   const preloaderId = 'preloader';
   const checkboxViewPathId = 'checkbox-view-path';
@@ -72,10 +71,7 @@ async function main() {
       <h2 class="visually-hidden" id="game-title">Игровое поле</h2>
       <p class="visually-hidden" id="game-instructions">Используйте кнопки направления или стрелки клавиатуры, чтобы перемещаться по лабиринту. Чтобы приблизить поле, используйте кнопки масштаба, жест двумя пальцами или Control и колесо мыши.</p>
       <div class="game__canvas-container" aria-describedby="game-instructions">
-        ${Preloader({
-          id: preloaderId,
-          color: figureColor,
-        })}
+        ${Preloader({ id: preloaderId })}
         
          <canvas id="canvas-background" class="canvas-background" aria-hidden="true"></canvas>
          <canvas id="canvas-path" class="canvas-path" aria-hidden="true"></canvas>
@@ -140,7 +136,6 @@ async function main() {
     canvasPath: elements.canvasPath,
     canvasPoint: elements.canvasPoint,
     canvasContainer: elements.canvasContainer,
-    pathColor: figureColor,
     resultContainer: elements.resultContainer,
     onZoomChange: zoomPercent => {
       elements.zoomValue.value = `${zoomPercent}%`;

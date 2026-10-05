@@ -3,6 +3,7 @@ import settings from '/settings.svg';
 import type { SettingsItem } from '../../types.ts';
 import { FAST_MOVEMENT_KEY, TIMER_KEY, VIEW_PATH_KEY } from '../../constants.ts';
 import { loadBooleanStorageValue, saveStorageValue } from '../../utils/storage.ts';
+import { ThemeSwitcher, setupThemeSwitcher } from '../ThemeSwitcher/ThemeSwitcher.ts';
 
 export function Settings({ items }: { items: SettingsItem[] }) {
   const list = items.map(
@@ -20,10 +21,11 @@ export function Settings({ items }: { items: SettingsItem[] }) {
             </button>
             
             <div class="settings__popover" popover id="settings-popover">
-              <div class="settings__title">Настройки</div>
-              
-              ${list.join('')}
-            </div>
+               <div class="settings__title">Настройки</div>
+
+               ${list.join('')}
+               ${ThemeSwitcher()}
+             </div>
           </div>`;
 }
 
@@ -40,6 +42,7 @@ export function setupSettingsCheckboxes({
   checkboxFastMovement: HTMLInputElement;
   checkboxTimer: HTMLInputElement;
 }) {
+  setupThemeSwitcher();
   checkboxViewPath.checked = loadBooleanStorageValue(VIEW_PATH_KEY, true);
   checkboxFastMovement.checked = loadBooleanStorageValue(FAST_MOVEMENT_KEY, true);
   checkboxFastMovement.disabled = !checkboxViewPath.checked;

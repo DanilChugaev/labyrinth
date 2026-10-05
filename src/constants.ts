@@ -13,3 +13,4 @@ export const LABYRINTH_SIZE_KEY = 'LABYRINTH_SIZE_KEY';
 export const GAME_STATE_KEY = 'GAME_STATE_KEY';
 export const TIMER_KEY = 'TIMER_KEY';
 export const TIMER_VALUE_KEY = 'TIMER_VALUE_KEY';
+export const THEME_KEY = 'LABYRINTH_THEME_KEY';

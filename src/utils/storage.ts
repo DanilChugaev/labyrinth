@@ -31,7 +31,7 @@ export function getStorageValue(key: string): string | null {
   }
 }
 
-function removeStorageValue(key: string): void {
+export function removeStorageValue(key: string): void {
   try {
     localStorage.removeItem(key);
   } catch {

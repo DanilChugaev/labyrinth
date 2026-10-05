@@ -45,7 +45,6 @@ interface CanvasSetup {
   canvasPath: HTMLCanvasElement;
   canvasPoint: HTMLCanvasElement;
   canvasContainer: HTMLDivElement;
-  pathColor: string;
   resultContainer: HTMLDivElement;
   onZoomChange: (zoomPercent: number) => void;
 }
@@ -55,19 +54,12 @@ export async function setupCanvas({
   canvasPath,
   canvasPoint,
   canvasContainer,
-  pathColor,
   resultContainer,
   onZoomChange,
 }: CanvasSetup) {
   const backgroundContext = canvasBackground.getContext('2d')!;
   const pathContext = canvasPath.getContext('2d')!;
   const pointContext = canvasPoint.getContext('2d')!;
-
-  const styles = getComputedStyle(canvasBackground);
-  const wallColor = styles.getPropertyValue('--border-canvas-wall').trim();
-  const canvasBgColor = styles.getPropertyValue('--bg-canvas').trim();
-  const pointColor = styles.getPropertyValue('--point-color').trim();
-  const targetColor = styles.getPropertyValue('--target-color').trim();
 
   let size = Number(getLabyrinthSize());
   let structure = new Uint8Array();
@@ -122,6 +114,10 @@ export async function setupCanvas({
   function drawLabyrinth(): void {
     if (!structure.length) return;
 
+    const styles = getComputedStyle(canvasBackground);
+    const wallColor = styles.getPropertyValue('--border-canvas-wall').trim();
+    const canvasBgColor = styles.getPropertyValue('--bg-canvas').trim();
+    const targetColor = styles.getPropertyValue('--target-color').trim();
     const { minX, maxX, minY, maxY } = viewport.getVisibleBounds();
     prepareContext(backgroundContext, canvasBgColor);
     backgroundContext.strokeStyle = wallColor;
@@ -161,6 +157,7 @@ export async function setupCanvas({
   }
 
   function drawPath(): void {
+    const pathColor = getComputedStyle(canvasPath).getPropertyValue('--figure-color').trim();
     const { minX, maxX, minY, maxY } = viewport.getVisibleBounds();
     prepareContext(pathContext);
     pathContext.beginPath();
@@ -181,6 +178,7 @@ export async function setupCanvas({
   }
 
   function drawPlayer(): void {
+    const pointColor = getComputedStyle(canvasPoint).getPropertyValue('--point-color').trim();
     prepareContext(pointContext);
     pointContext.beginPath();
     pointContext.arc(currentX + 0.5, currentY + 0.5, 0.3, 0, 2 * Math.PI);
@@ -369,6 +367,8 @@ export async function setupCanvas({
     setCanvasSize();
     render();
   });
+
+  document.addEventListener('themechange', render);
 
   document.addEventListener('keydown', event => {
     const target = event.target;

@@ -15,6 +15,10 @@
 .settings__button:hover,
 .settings__button:focus {
     outline: none;
+}
+
+.settings__button:hover .settings__icon,
+.settings__button:focus-visible .settings__icon {
     filter: var(--icon-invert-hover);
 }
 

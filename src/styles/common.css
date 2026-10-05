@@ -27,8 +27,6 @@
   --border-color-hover: var(--border-hover);
   --border-color-focus: var(--border-focus);
   --box-shadow-focus: var(--shadow-focus);
-  --icon-invert: var(--icon-invert);
-  --icon-invert-hover: var(--icon-invert-hover);
 }
 
 * {

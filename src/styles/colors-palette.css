@@ -1,4 +1,6 @@
-:root {
+:root,
+:root[data-theme='dark'] {
+    color-scheme: dark;
     /* ===== Цветовая палитра ===== */
     /* Красные */
     --color-red-primary: #e8685a;
@@ -51,13 +53,34 @@
     --target-color: var(--color-teal-dark);                     /* Целевая точка */
 
     /* Иконки */
-    --icon-invert: invert(1);
-    --icon-invert-hover: invert(0.7);
+    --icon-invert: none;
+    --icon-invert-hover: brightness(1.2);
 }
 
 /* ===== Светлая тема ===== */
+:root[data-theme='light'] {
+    color-scheme: light;
+    /* Фон */
+    --bg-app: var(--color-gray-bg-light);
+
+    /* Текст */
+    --text-primary: var(--color-gray-text-light);
+    --text-secondary: var(--color-gray-secondary-light);
+    --text-result: var(--color-gray-result-light);
+
+    /* Границы */
+    --border-default: var(--color-gray-border-light);
+    --border-hover: var(--color-gray-hover-light);
+
+    /* Иконки */
+    --icon-invert: brightness(0.55);
+    --icon-invert-hover: brightness(0.4);
+}
+
+/* ===== Системная светлая тема ===== */
 @media (prefers-color-scheme: light) {
-    :root {
+    :root:not([data-theme]) {
+        color-scheme: light;
         /* Фон */
         --bg-app: var(--color-gray-bg-light);
 
@@ -71,7 +94,7 @@
         --border-hover: var(--color-gray-hover-light);
 
         /* Иконки */
-        --icon-invert: invert(0);
-        --icon-invert-hover: invert(0.3);
+        --icon-invert: brightness(0.55);
+        --icon-invert-hover: brightness(0.4);
     }
 }
