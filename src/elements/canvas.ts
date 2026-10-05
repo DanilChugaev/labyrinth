@@ -347,8 +347,11 @@ export async function setupCanvas({
     { passive: false },
   );
 
-  function zoomAtCenter(factor: number): void {
-    viewport.zoomAt(viewportSize / 2, viewportSize / 2, factor);
+  function zoomAtPlayer(factor: number): void {
+    const playerScreenX = viewport.offsetX + (currentX) * viewport.scale;
+    const playerScreenY = viewport.offsetY + (currentY) * viewport.scale;
+
+    viewport.zoomAt(playerScreenX, playerScreenY, factor);
     render();
   }
 
@@ -374,10 +377,10 @@ export async function setupCanvas({
 
     if (event.key === '+' || event.key === '=') {
       event.preventDefault();
-      zoomAtCenter(ZOOM_STEP);
+      zoomAtPlayer(ZOOM_STEP);
     } else if (event.key === '-' || event.key === '_') {
       event.preventDefault();
-      zoomAtCenter(1 / ZOOM_STEP);
+      zoomAtPlayer(1 / ZOOM_STEP);
     } else if (event.key === '0') {
       event.preventDefault();
       fitToScreen();
@@ -389,8 +392,8 @@ export async function setupCanvas({
   return {
     redrawLabyrinth: startLabyrinth,
     drawPoint,
-    zoomIn: () => zoomAtCenter(ZOOM_STEP),
-    zoomOut: () => zoomAtCenter(1 / ZOOM_STEP),
+    zoomIn: () => zoomAtPlayer(ZOOM_STEP),
+    zoomOut: () => zoomAtPlayer(1 / ZOOM_STEP),
     fitToScreen,
   };
 }
