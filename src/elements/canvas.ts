@@ -194,22 +194,6 @@ export async function setupCanvas({
     backgroundContext.fillStyle = targetColor;
     backgroundContext.fill();
 
-    if (goalAnimation) {
-      backgroundContext.globalAlpha = 1 - goalProgress;
-      backgroundContext.lineWidth = 0.07;
-      backgroundContext.beginPath();
-      backgroundContext.arc(
-        targetX + 0.5,
-        targetY + 0.5,
-        0.3 + goalProgress * 0.85,
-        0,
-        2 * Math.PI,
-      );
-      backgroundContext.stroke();
-      backgroundContext.closePath();
-      backgroundContext.globalAlpha = 1;
-    }
-
     backgroundContext.restore();
   }
 
@@ -236,8 +220,22 @@ export async function setupCanvas({
 
   function drawPlayer(now: number): void {
     const pointColor = getComputedStyle(canvasPoint).getPropertyValue('--point-color').trim();
+    const targetColor = getComputedStyle(canvasPoint).getPropertyValue('--target-color').trim();
     const playerPosition = getPlayerPosition(now);
     prepareContext(pointContext);
+
+    if (goalAnimation) {
+      const goalProgress = getAnimationProgress(goalAnimation, now);
+      pointContext.globalAlpha = 1 - goalProgress;
+      pointContext.strokeStyle = targetColor;
+      pointContext.lineWidth = 0.07;
+      pointContext.beginPath();
+      pointContext.arc(size - 0.5, size - 0.5, 0.3 + goalProgress * 0.85, 0, 2 * Math.PI);
+      pointContext.stroke();
+      pointContext.closePath();
+      pointContext.globalAlpha = 1;
+    }
+
     pointContext.beginPath();
     pointContext.arc(playerPosition.x + 0.5, playerPosition.y + 0.5, 0.3, 0, 2 * Math.PI);
     pointContext.fillStyle = pointColor;
