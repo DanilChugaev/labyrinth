@@ -366,7 +366,7 @@ export async function setupCanvas({
 
     if (currentX === size - 1 && currentY === size - 1) {
       gameStop();
-      const elapsedTime = loadBooleanStorageValue(TIMER_KEY, true) ? timerStop() : 0;
+      const elapsedTime = timerStop();
       updateVictoryStats(elapsedTime);
 
       isVictoryPending = true;
