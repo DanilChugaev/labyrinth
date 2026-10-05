@@ -348,8 +348,8 @@ export async function setupCanvas({
   );
 
   function zoomAtPlayer(factor: number): void {
-    const playerScreenX = viewport.offsetX + (currentX) * viewport.scale;
-    const playerScreenY = viewport.offsetY + (currentY) * viewport.scale;
+    const playerScreenX = viewport.offsetX + currentX * viewport.scale;
+    const playerScreenY = viewport.offsetY + currentY * viewport.scale;
 
     viewport.zoomAt(playerScreenX, playerScreenY, factor);
     render();

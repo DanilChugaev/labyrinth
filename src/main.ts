@@ -126,6 +126,10 @@ async function main() {
     zoomValue: document.querySelector<HTMLOutputElement>(`#${zoomControlIds.value}`)!,
   };
 
+  function updateNextLevelVisibility(): void {
+    elements.nextLevel.hidden = Number(getLabyrinthSize()) >= MAX_CANVAS_SIZE;
+  }
+
   const { redrawLabyrinth, drawPoint, zoomIn, zoomOut, fitToScreen } = await setupCanvas({
     canvasBackground: elements.canvasBackground,
     canvasPath: elements.canvasPath,
@@ -159,9 +163,13 @@ async function main() {
     }
 
     setLabyrinthSize(size);
+    updateNextLevelVisibility();
     redrawLabyrinth();
   });
-  setupSelect(elements.select, redrawLabyrinth);
+  setupSelect(elements.select, () => {
+    updateNextLevelVisibility();
+    void redrawLabyrinth();
+  });
   setupButton(elements.zoomDecrease, zoomOut);
   setupButton(elements.zoomIncrease, zoomIn);
   setupButton(elements.zoomReset, fitToScreen);
@@ -176,6 +184,7 @@ async function main() {
   elements.button.disabled = false;
   elements.select.disabled = false;
   elements.preloader.style.display = 'none';
+  updateNextLevelVisibility();
 }
 
 main();
