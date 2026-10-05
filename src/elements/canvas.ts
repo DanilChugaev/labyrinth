@@ -1,6 +1,14 @@
 import { timerStart, timerStop } from '../components/Timer/Timer.ts';
 import { FAST_MOVEMENT_KEY, TIMER_KEY } from '../constants.ts';
 import { generateLabyrinth } from '../generator.ts';
+import {
+  easeOutCubic,
+  getAnimationProgress,
+  lerp,
+  type GoalAnimation,
+  type PlayerAnimation,
+  type WallHitAnimation,
+} from '../game/animations.ts';
 import { Viewport } from '../game/Viewport.ts';
 import type { PointDirection } from '../types.ts';
 import {
@@ -14,6 +22,9 @@ import {
 const MIN_VIEWPORT_SIZE = 160;
 const PAN_THRESHOLD = 8;
 const ZOOM_STEP = 1.25;
+const PLAYER_MOVE_DURATION = 130;
+const WALL_HIT_DURATION = 140;
+const GOAL_DURATION = 360;
 
 let currentY = 0;
 let currentX = 0;
@@ -72,6 +83,12 @@ export async function setupCanvas({
   let hasDragged = false;
   let hasPinched = false;
   let pinchDistance = 0;
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let playerAnimation: PlayerAnimation | null = null;
+  let wallHitAnimation: WallHitAnimation | null = null;
+  let goalAnimation: GoalAnimation | null = null;
+  let animationFrameId: number | null = null;
+  let isVictoryPending = false;
 
   function getViewportSize(): number {
     const headerHeight = document.querySelector<HTMLElement>('.header')?.offsetHeight ?? 0;
@@ -111,7 +128,7 @@ export async function setupCanvas({
     context.scale(viewport.scale, viewport.scale);
   }
 
-  function drawLabyrinth(): void {
+  function drawLabyrinth(now: number): void {
     if (!structure.length) return;
 
     const styles = getComputedStyle(canvasBackground);
@@ -152,7 +169,13 @@ export async function setupCanvas({
     const targetX = size - 1;
     const targetY = size - 1;
     const poleX = targetX + 0.34;
+    const goalProgress = goalAnimation ? getAnimationProgress(goalAnimation, now) : 0;
+    const goalScale = goalAnimation ? 1 + Math.sin(goalProgress * Math.PI) * 0.16 : 1;
 
+    backgroundContext.save();
+    backgroundContext.translate(targetX + 0.5, targetY + 0.5);
+    backgroundContext.scale(goalScale, goalScale);
+    backgroundContext.translate(-(targetX + 0.5), -(targetY + 0.5));
     backgroundContext.strokeStyle = targetColor;
     backgroundContext.lineWidth = 0.1;
     backgroundContext.lineCap = 'round';
@@ -169,6 +192,24 @@ export async function setupCanvas({
     backgroundContext.closePath();
     backgroundContext.fillStyle = targetColor;
     backgroundContext.fill();
+
+    if (goalAnimation) {
+      backgroundContext.globalAlpha = 1 - goalProgress;
+      backgroundContext.lineWidth = 0.07;
+      backgroundContext.beginPath();
+      backgroundContext.arc(
+        targetX + 0.5,
+        targetY + 0.5,
+        0.3 + goalProgress * 0.85,
+        0,
+        2 * Math.PI,
+      );
+      backgroundContext.stroke();
+      backgroundContext.closePath();
+      backgroundContext.globalAlpha = 1;
+    }
+
+    backgroundContext.restore();
   }
 
   function drawPath(): void {
@@ -192,43 +233,151 @@ export async function setupCanvas({
     pathContext.closePath();
   }
 
-  function drawPlayer(): void {
+  function drawPlayer(now: number): void {
     const pointColor = getComputedStyle(canvasPoint).getPropertyValue('--point-color').trim();
+    const playerPosition = getPlayerPosition(now);
     prepareContext(pointContext);
     pointContext.beginPath();
-    pointContext.arc(currentX + 0.5, currentY + 0.5, 0.3, 0, 2 * Math.PI);
+    pointContext.arc(playerPosition.x + 0.5, playerPosition.y + 0.5, 0.3, 0, 2 * Math.PI);
     pointContext.fillStyle = pointColor;
     pointContext.fill();
     pointContext.closePath();
   }
 
-  function render(): void {
-    drawLabyrinth();
+  function render(now = performance.now()): void {
+    drawLabyrinth(now);
     drawPath();
-    drawPlayer();
+    drawPlayer(now);
     onZoomChange(viewport.getZoomPercent());
+  }
+
+  function requestRender(): void {
+    if (animationFrameId !== null) return;
+
+    animationFrameId = requestAnimationFrame(now => {
+      animationFrameId = null;
+      const hasActiveAnimations = updateAnimations(now);
+      render(now);
+
+      if (hasActiveAnimations) requestRender();
+    });
+  }
+
+  function updateAnimations(now: number): boolean {
+    if (playerAnimation && getAnimationProgress(playerAnimation, now) === 1) {
+      addPathPoint(playerAnimation.x, playerAnimation.y);
+      playerAnimation = null;
+    }
+    if (wallHitAnimation && getAnimationProgress(wallHitAnimation, now) === 1) {
+      wallHitAnimation = null;
+    }
+
+    if (goalAnimation && getAnimationProgress(goalAnimation, now) === 1) {
+      goalAnimation = null;
+      openVictoryDialog();
+    }
+
+    if (isVictoryPending && !playerAnimation && !goalAnimation) {
+      isVictoryPending = false;
+
+      if (prefersReducedMotion.matches) {
+        openVictoryDialog();
+      } else {
+        goalAnimation = { startedAt: now, duration: GOAL_DURATION };
+      }
+    }
+
+    return Boolean(playerAnimation || wallHitAnimation || goalAnimation);
+  }
+
+  function addPathPoint(x: number, y: number): void {
+    const row = pathBuffer.get(y) ?? new Set<number>();
+    row.add(x);
+    pathBuffer.set(y, row);
+  }
+
+  function getPlayerPosition(now: number): { x: number; y: number } {
+    let x = currentX;
+    let y = currentY;
+
+    if (playerAnimation) {
+      const progress = easeOutCubic(getAnimationProgress(playerAnimation, now));
+      x = lerp(playerAnimation.fromX, playerAnimation.x, progress);
+      y = lerp(playerAnimation.fromY, playerAnimation.y, progress);
+    }
+
+    if (wallHitAnimation) {
+      const progress = getAnimationProgress(wallHitAnimation, now);
+      const distance = Math.sin(progress * Math.PI) * 0.13;
+
+      if (wallHitAnimation.direction === 'top') y -= distance;
+      if (wallHitAnimation.direction === 'right') x += distance;
+      if (wallHitAnimation.direction === 'bottom') y += distance;
+      if (wallHitAnimation.direction === 'left') x -= distance;
+    }
+
+    return { x, y };
   }
 
   function drawPoint(direction?: PointDirection): void {
     if (checkGameState('win') || !structure.length) return;
 
-    if (direction) directionMap[direction](structure, size);
+    const previousPosition = getPlayerPosition(performance.now());
+    const previousX = currentX;
+    const previousY = currentY;
 
-    const row = pathBuffer.get(currentY) ?? new Set<number>();
-    row.add(currentX);
-    pathBuffer.set(currentY, row);
+    if (direction) directionMap[direction](structure, size);
+    const hasMoved = previousX !== currentX || previousY !== currentY;
+
+    if (direction && !hasMoved) {
+      if (!prefersReducedMotion.matches) {
+        wallHitAnimation = {
+          direction,
+          startedAt: performance.now(),
+          duration: WALL_HIT_DURATION,
+        };
+        requestRender();
+      } else {
+        render();
+      }
+
+      if (!prefersReducedMotion.matches && 'vibrate' in navigator) navigator.vibrate(12);
+      return;
+    }
+
+    if (direction && hasMoved && !prefersReducedMotion.matches) {
+      if (playerAnimation) addPathPoint(previousX, previousY);
+
+      playerAnimation = {
+        fromX: previousPosition.x,
+        fromY: previousPosition.y,
+        x: currentX,
+        y: currentY,
+        startedAt: performance.now(),
+        duration: PLAYER_MOVE_DURATION,
+      };
+      wallHitAnimation = null;
+    }
+
+    if (!direction || prefersReducedMotion.matches) addPathPoint(currentX, currentY);
     viewport.keepCellVisible(currentX, currentY);
-    render();
+    requestRender();
 
     if (currentX === size - 1 && currentY === size - 1) {
       gameStop();
-      resultContainer.showModal();
-      const nextLevelButton = resultContainer.querySelector<HTMLButtonElement>('#next-level');
-      const newLevelButton = resultContainer.querySelector<HTMLButtonElement>('#new-level');
-      (nextLevelButton?.hidden ? newLevelButton : nextLevelButton)?.focus();
-
       if (loadBooleanStorageValue(TIMER_KEY, true)) timerStop();
+
+      isVictoryPending = true;
     }
+  }
+
+  function openVictoryDialog(): void {
+    if (resultContainer.open) return;
+
+    resultContainer.showModal();
+    const nextLevelButton = resultContainer.querySelector<HTMLButtonElement>('#next-level');
+    const newLevelButton = resultContainer.querySelector<HTMLButtonElement>('#new-level');
+    (nextLevelButton?.hidden ? newLevelButton : nextLevelButton)?.focus();
   }
 
   async function startLabyrinth(): Promise<void> {
@@ -238,6 +387,12 @@ export async function setupCanvas({
     currentX = 0;
     currentY = 0;
     pathBuffer.clear();
+    playerAnimation = null;
+    wallHitAnimation = null;
+    goalAnimation = null;
+    isVictoryPending = false;
+    if (animationFrameId !== null) cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
     if (resultContainer.open) resultContainer.close();
     timerStop(false);
     setCanvasSize();
@@ -382,7 +537,18 @@ export async function setupCanvas({
     render();
   });
 
-  document.addEventListener('themechange', render);
+  document.addEventListener('themechange', () => render());
+  prefersReducedMotion.addEventListener('change', () => {
+    if (!prefersReducedMotion.matches) return;
+
+    playerAnimation = null;
+    wallHitAnimation = null;
+    if (goalAnimation) {
+      goalAnimation = null;
+      openVictoryDialog();
+    }
+    render();
+  });
 
   document.addEventListener('keydown', event => {
     const target = event.target;
