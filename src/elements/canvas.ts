@@ -45,7 +45,7 @@ interface CanvasSetup {
   canvasPath: HTMLCanvasElement;
   canvasPoint: HTMLCanvasElement;
   canvasContainer: HTMLDivElement;
-  resultContainer: HTMLDivElement;
+  resultContainer: HTMLDialogElement;
   onZoomChange: (zoomPercent: number) => void;
 }
 
@@ -207,8 +207,7 @@ export async function setupCanvas({
 
     if (currentX === size - 1 && currentY === size - 1) {
       gameStop();
-      resultContainer.style.display = 'flex';
-      resultContainer.setAttribute('aria-hidden', 'false');
+      resultContainer.showModal();
       const nextLevelButton = resultContainer.querySelector<HTMLButtonElement>('#next-level');
       const newLevelButton = resultContainer.querySelector<HTMLButtonElement>('#new-level');
       (nextLevelButton?.hidden ? newLevelButton : nextLevelButton)?.focus();
@@ -224,8 +223,7 @@ export async function setupCanvas({
     currentX = 0;
     currentY = 0;
     pathBuffer.clear();
-    resultContainer.style.display = 'none';
-    resultContainer.setAttribute('aria-hidden', 'true');
+    if (resultContainer.open) resultContainer.close();
     timerStop(false);
     setCanvasSize();
     viewport.fit();
@@ -239,6 +237,7 @@ export async function setupCanvas({
 
     structure = generatedStructure;
     drawPoint();
+    canvasPoint.focus({ preventScroll: true });
   }
 
   function getPointerPosition(event: PointerEvent | WheelEvent): { x: number; y: number } {

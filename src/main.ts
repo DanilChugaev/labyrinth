@@ -75,16 +75,18 @@ async function main() {
         
          <canvas id="canvas-background" class="canvas-background" aria-hidden="true"></canvas>
          <canvas id="canvas-path" class="canvas-path" aria-hidden="true"></canvas>
-         <canvas id="canvas-point" class="canvas-point" aria-label="Лабиринт. Для движения используйте кнопки направления или стрелки клавиатуры.">Ваш браузер не поддерживает Canvas. Используйте современный браузер для игры.</canvas>
+         <canvas id="canvas-point" class="canvas-point" tabindex="0" aria-label="Лабиринт. Для движения используйте кнопки направления или стрелки клавиатуры.">Ваш браузер не поддерживает Canvas. Используйте современный браузер для игры.</canvas>
 
-        <div id="result-container" class="game__result" role="status" aria-live="assertive" aria-atomic="true" aria-labelledby="result-title" aria-hidden="true">
-          <div id="result-title">Победа!</div>
+        <dialog id="result-container" class="game__result" aria-labelledby="result-title" aria-describedby="result-description">
+          <div class="game__result-icon" aria-hidden="true">✦</div>
+          <h2 id="result-title" class="game__result-title">Победа!</h2>
+          <p id="result-description" class="game__result-description">Вы добрались до выхода из лабиринта.</p>
 
-          <div>
+          <div class="game__result-actions">
             <button class="game__button" id="new-level" type="button">Новый лабиринт</button>
             <button class="game__button" id="next-level" type="button">Следующий уровень</button>
           </div>
-        </div>
+        </dialog>
       </div>
       
       <div class="game__controls">
@@ -120,7 +122,7 @@ async function main() {
     left: document.querySelector<HTMLButtonElement>('#left')!,
     bottom: document.querySelector<HTMLButtonElement>('#bottom')!,
     right: document.querySelector<HTMLButtonElement>('#right')!,
-    resultContainer: document.querySelector<HTMLDivElement>('#result-container')!,
+    resultContainer: document.querySelector<HTMLDialogElement>('#result-container')!,
     zoomDecrease: document.querySelector<HTMLButtonElement>(`#${zoomControlIds.decrease}`)!,
     zoomIncrease: document.querySelector<HTMLButtonElement>(`#${zoomControlIds.increase}`)!,
     zoomReset: document.querySelector<HTMLButtonElement>(`#${zoomControlIds.reset}`)!,
@@ -150,6 +152,8 @@ async function main() {
     checkboxFastMovement: elements.checkboxFastMovement,
     checkboxTimer: elements.checkboxTimer,
   });
+
+  elements.resultContainer.addEventListener('cancel', event => event.preventDefault());
 
   setupButton(elements.button, redrawLabyrinth);
   setupButton(elements.newLevel, redrawLabyrinth);
