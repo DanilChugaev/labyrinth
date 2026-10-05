@@ -10,7 +10,6 @@ function isInteractiveElement(target: EventTarget | null): boolean {
     target instanceof HTMLInputElement ||
     target instanceof HTMLSelectElement ||
     target instanceof HTMLTextAreaElement ||
-    target instanceof HTMLButtonElement ||
     (target instanceof HTMLElement && target.isContentEditable)
   );
 }
