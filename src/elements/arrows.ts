@@ -1,8 +1,18 @@
 import type { PointDirection } from '../types.ts';
 
-interface KeyMapObj {
-  button?: HTMLButtonElement;
-  direction?: PointDirection;
+interface DirectionButton {
+  button: HTMLButtonElement;
+  direction: PointDirection;
+}
+
+function isInteractiveElement(target: EventTarget | null): boolean {
+  return (
+    target instanceof HTMLInputElement ||
+    target instanceof HTMLSelectElement ||
+    target instanceof HTMLTextAreaElement ||
+    target instanceof HTMLButtonElement ||
+    (target instanceof HTMLElement && target.isContentEditable)
+  );
 }
 
 export function setupArrows({
@@ -18,56 +28,41 @@ export function setupArrows({
   right: HTMLButtonElement;
   drawPoint: (direction: PointDirection) => void;
 }) {
-  const arrowUp: KeyMapObj = {
-    button: top,
-    direction: 'top',
-  };
-  const arrowRight: KeyMapObj = {
-    button: right,
-    direction: 'right',
-  };
-  const arrowDown: KeyMapObj = {
-    button: bottom,
-    direction: 'bottom',
-  };
-  const arrowLeft: KeyMapObj = {
-    button: left,
-    direction: 'left',
-  };
-
-  const keyMap: Record<string, KeyMapObj> = {
-    ArrowUp: arrowUp,
-    ArrowRight: arrowRight,
-    ArrowDown: arrowDown,
-    ArrowLeft: arrowLeft,
+  const keyMap: Partial<Record<string, PointDirection>> = {
+    ArrowUp: 'top',
+    ArrowRight: 'right',
+    ArrowDown: 'bottom',
+    ArrowLeft: 'left',
   };
 
   document.addEventListener('keydown', event => {
-    const keyMapObj: KeyMapObj = keyMap[event.key];
+    const direction = keyMap[event.key];
 
-    if (keyMapObj?.button && !event.repeat && keyMapObj?.direction) {
-      event.preventDefault();
-      drawPoint(keyMapObj.direction);
-    }
+    if (!direction || event.repeat || isInteractiveElement(event.target)) return;
+
+    event.preventDefault();
+    drawPoint(direction);
   });
 
-  const buttons = [arrowUp, arrowRight, arrowDown, arrowLeft];
+  const buttons: DirectionButton[] = [
+    { button: top, direction: 'top' },
+    { button: right, direction: 'right' },
+    { button: bottom, direction: 'bottom' },
+    { button: left, direction: 'left' },
+  ];
 
   buttons.forEach(({ button, direction }) => {
-    // для мыши
-    button!.addEventListener('mousedown', () => drawPoint(direction!));
+    button.addEventListener('click', () => drawPoint(direction));
 
-    // для сенсорных устройств
-    button!.addEventListener('touchstart', event => {
-      event.preventDefault();
-      button!.classList.add('game__button--active');
-      drawPoint(direction!);
+    button.addEventListener('pointerdown', event => {
+      if (event.pointerType !== 'mouse' || event.button === 0) {
+        button.classList.add('game__button--active');
+      }
     });
-    button!.addEventListener('touchend', () => {
-      button!.classList.remove('game__button--active');
-    });
-    button!.addEventListener('touchcancel', () => {
-      button!.classList.remove('game__button--active');
-    });
+
+    const removeActiveState = () => button.classList.remove('game__button--active');
+    button.addEventListener('pointerup', removeActiveState);
+    button.addEventListener('pointercancel', removeActiveState);
+    button.addEventListener('pointerleave', removeActiveState);
   });
 }
