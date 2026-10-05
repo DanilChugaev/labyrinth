@@ -149,11 +149,26 @@ export async function setupCanvas({
 
     backgroundContext.stroke();
     backgroundContext.closePath();
+    const targetX = size - 1;
+    const targetY = size - 1;
+    const poleX = targetX + 0.34;
+
+    backgroundContext.strokeStyle = targetColor;
+    backgroundContext.lineWidth = 0.1;
+    backgroundContext.lineCap = 'round';
     backgroundContext.beginPath();
-    backgroundContext.arc(size - 0.5, size - 0.5, 0.3, 0, 2 * Math.PI);
+    backgroundContext.moveTo(poleX, targetY + 0.82);
+    backgroundContext.lineTo(poleX, targetY + 0.18);
+    backgroundContext.stroke();
+    backgroundContext.closePath();
+
+    backgroundContext.beginPath();
+    backgroundContext.moveTo(poleX, targetY + 0.2);
+    backgroundContext.lineTo(targetX + 0.82, targetY + 0.34);
+    backgroundContext.lineTo(poleX, targetY + 0.5);
+    backgroundContext.closePath();
     backgroundContext.fillStyle = targetColor;
     backgroundContext.fill();
-    backgroundContext.closePath();
   }
 
   function drawPath(): void {
