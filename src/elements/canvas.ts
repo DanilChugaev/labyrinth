@@ -1,4 +1,4 @@
-import { timerStart, timerStop } from '../components/Timer/Timer.ts';
+import { formatTime, timerStart, timerStop } from '../components/Timer/Timer.ts';
 import { FAST_MOVEMENT_KEY, TIMER_KEY } from '../constants.ts';
 import { generateLabyrinth } from '../generator.ts';
 import {
@@ -16,6 +16,7 @@ import {
   gameStart,
   gameStop,
   getLabyrinthSize,
+  getTimer,
   loadBooleanStorageValue,
 } from '../utils/storage.ts';
 
@@ -365,7 +366,8 @@ export async function setupCanvas({
 
     if (currentX === size - 1 && currentY === size - 1) {
       gameStop();
-      if (loadBooleanStorageValue(TIMER_KEY, true)) timerStop();
+      const elapsedTime = loadBooleanStorageValue(TIMER_KEY, true) ? timerStop() : 0;
+      updateVictoryStats(elapsedTime);
 
       isVictoryPending = true;
     }
@@ -378,6 +380,16 @@ export async function setupCanvas({
     const nextLevelButton = resultContainer.querySelector<HTMLButtonElement>('#next-level');
     const newLevelButton = resultContainer.querySelector<HTMLButtonElement>('#new-level');
     (nextLevelButton?.hidden ? newLevelButton : nextLevelButton)?.focus();
+  }
+
+  function updateVictoryStats(elapsedTime: number): void {
+    const sizeElement = resultContainer.querySelector<HTMLElement>('#result-size');
+    const timeElement = resultContainer.querySelector<HTMLElement>('#result-time');
+    const bestTimeElement = resultContainer.querySelector<HTMLElement>('#result-best-time');
+
+    if (sizeElement) sizeElement.textContent = `${size} × ${size}`;
+    if (timeElement) timeElement.textContent = formatTime(elapsedTime);
+    if (bestTimeElement) bestTimeElement.textContent = formatTime(getTimer());
   }
 
   async function startLabyrinth(): Promise<void> {

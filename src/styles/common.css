@@ -131,8 +131,40 @@ body {
 }
 
 .game__result-description {
-  margin: 8px 0 24px;
+  margin: 8px 0 20px;
   color: var(--text-secondary);
+}
+
+.game__result-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  width: 100%;
+  margin: 0 0 24px;
+}
+
+.game__result-stat {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 3px;
+  padding: 10px 6px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+}
+
+.game__result-stat dt {
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.game__result-stat dd {
+  margin: 0;
+  color: var(--color);
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
 }
 
 .game__result-actions {
@@ -321,6 +353,18 @@ label {
 
   .game__result-title {
     font-size: 28px;
+  }
+
+  .game__result-stats {
+    gap: 6px;
+  }
+
+  .game__result-stat {
+    padding: 8px 4px;
+  }
+
+  .game__result-stat dt {
+    font-size: 10px;
   }
 
   .logo {

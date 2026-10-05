@@ -82,6 +82,21 @@ async function main() {
           <h2 id="result-title" class="game__result-title">Победа!</h2>
           <p id="result-description" class="game__result-description">Вы добрались до выхода из лабиринта.</p>
 
+          <dl class="game__result-stats">
+            <div class="game__result-stat">
+              <dt>Размер лабиринта</dt>
+              <dd id="result-size">—</dd>
+            </div>
+            <div class="game__result-stat">
+              <dt>Итоговое время</dt>
+              <dd id="result-time">00:00</dd>
+            </div>
+            <div class="game__result-stat">
+              <dt>Лучший результат</dt>
+              <dd id="result-best-time">00:00</dd>
+            </div>
+          </dl>
+
           <div class="game__result-actions">
             <button class="game__button" id="new-level" type="button">Новый лабиринт</button>
             <button class="game__button" id="next-level" type="button">Следующий уровень</button>

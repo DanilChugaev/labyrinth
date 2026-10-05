@@ -37,13 +37,15 @@ export function timerStart() {
   }, 1000);
 }
 
-export function timerStop(shouldSave = true) {
+export function timerStop(shouldSave = true): number {
   clearInterval(intervalId);
 
   if (shouldSave) saveTimer(counter);
+
+  return counter;
 }
 
-function formatTime(seconds: number) {
+export function formatTime(seconds: number): string {
   const min = Math.floor(seconds / 60);
   const sec = seconds % 60;
 
