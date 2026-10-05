@@ -35,7 +35,7 @@
 
     /* Текст */
     --text-primary: var(--color-gray-primary);                  /* Основной текст */
-    --text-secondary: var(--color-gray-border-dark);            /* Вторичный текст */
+    --text-secondary: var(--color-gray-result-dark);            /* Вторичный текст */
     --text-result: var(--color-gray-result-dark);               /* Текст на экране результата */
 
     /* Границы */

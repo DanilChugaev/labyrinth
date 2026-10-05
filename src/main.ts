@@ -11,11 +11,13 @@ import { Settings, setupSettingsCheckboxes } from './components/Settings/Setting
 import type { SettingsItem } from './types.ts';
 import { Logo } from './components/Logo/Logo.ts';
 import { Timer } from './components/Timer/Timer.ts';
+import { ZoomControls, zoomControlIds } from './components/Zoom/Zoom.ts';
 import { getLabyrinthSize, setLabyrinthSize } from './utils/storage.ts';
 import {
   JUNIOR_MAX_CANVAS_SIZE,
   JUNIOR_MIN_CANVAS_SIZE,
   JUNIOR_STEP_CANVAS_SIZE,
+  MAX_CANVAS_SIZE,
   STEP_CANVAS_SIZE,
 } from './constants.ts';
 
@@ -72,9 +74,11 @@ async function main() {
           color: figureColor,
         })}
         
-        <canvas id="canvas-background" class="canvas-background"></canvas>
-        <canvas id="canvas-path" class="canvas-path"></canvas>
-        <canvas id="canvas-point" class="canvas-point"></canvas>
+         <canvas id="canvas-background" class="canvas-background"></canvas>
+         <canvas id="canvas-path" class="canvas-path"></canvas>
+         <canvas id="canvas-point" class="canvas-point"></canvas>
+
+         ${ZoomControls()}
         
         <div id="result-container" class="game__result">
           <div>Победа!</div>
@@ -99,6 +103,7 @@ async function main() {
     canvasBackground: document.querySelector<HTMLCanvasElement>('#canvas-background')!,
     canvasPath: document.querySelector<HTMLCanvasElement>('#canvas-path')!,
     canvasPoint: document.querySelector<HTMLCanvasElement>('#canvas-point')!,
+    canvasContainer: document.querySelector<HTMLDivElement>('.game__canvas-container')!,
     button: document.querySelector<HTMLButtonElement>('#button')!,
     newLevel: document.querySelector<HTMLButtonElement>('#new-level')!,
     nextLevel: document.querySelector<HTMLButtonElement>('#next-level')!,
@@ -115,14 +120,23 @@ async function main() {
     bottom: document.querySelector<HTMLButtonElement>('#bottom')!,
     right: document.querySelector<HTMLButtonElement>('#right')!,
     resultContainer: document.querySelector<HTMLDivElement>('#result-container')!,
+    zoomDecrease: document.querySelector<HTMLButtonElement>(`#${zoomControlIds.decrease}`)!,
+    zoomIncrease: document.querySelector<HTMLButtonElement>(`#${zoomControlIds.increase}`)!,
+    zoomReset: document.querySelector<HTMLButtonElement>(`#${zoomControlIds.reset}`)!,
+    zoomValue: document.querySelector<HTMLOutputElement>(`#${zoomControlIds.value}`)!,
   };
 
-  const { drawLabyrinth, redrawLabyrinth, drawPoint } = await setupCanvas({
+  const { redrawLabyrinth, drawPoint, zoomIn, zoomOut, fitToScreen } = await setupCanvas({
     canvasBackground: elements.canvasBackground,
     canvasPath: elements.canvasPath,
     canvasPoint: elements.canvasPoint,
+    canvasContainer: elements.canvasContainer,
     pathColor: figureColor,
     resultContainer: elements.resultContainer,
+    onZoomChange: zoomPercent => {
+      elements.zoomValue.value = `${zoomPercent}%`;
+      elements.zoomValue.textContent = `${zoomPercent}%`;
+    },
   });
 
   setupSettingsCheckboxes({
@@ -138,9 +152,9 @@ async function main() {
   setupButton(elements.nextLevel, () => {
     let size = Number(getLabyrinthSize());
 
-    if (size >= JUNIOR_MIN_CANVAS_SIZE && size <= JUNIOR_MAX_CANVAS_SIZE) {
+    if (size >= JUNIOR_MIN_CANVAS_SIZE && size < JUNIOR_MAX_CANVAS_SIZE) {
       size += JUNIOR_STEP_CANVAS_SIZE;
-    } else {
+    } else if (size < MAX_CANVAS_SIZE) {
       size += STEP_CANVAS_SIZE;
     }
 
@@ -148,6 +162,9 @@ async function main() {
     redrawLabyrinth();
   });
   setupSelect(elements.select, redrawLabyrinth);
+  setupButton(elements.zoomDecrease, zoomOut);
+  setupButton(elements.zoomIncrease, zoomIn);
+  setupButton(elements.zoomReset, fitToScreen);
   setupArrows({
     top: elements.top,
     left: elements.left,
@@ -155,9 +172,6 @@ async function main() {
     right: elements.right,
     drawPoint,
   });
-
-  await drawLabyrinth();
-  drawPoint();
 
   elements.button.disabled = false;
   elements.select.disabled = false;

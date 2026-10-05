@@ -69,11 +69,7 @@ function generateBaseStructure(totalCells: number) {
 export function generateStructure(size: number) {
   const totalCells = size * size;
 
-  const start1 = performance.now();
   const { isVisitedBuffer, bordersBuffer, weightsBuffer } = generateBaseStructure(totalCells);
-
-  const end1 = performance.now();
-  console.log(`Время generateBaseStructure: ${end1 - start1} мс`);
 
   // для моментального доступа к не посещенным вершинам создаем приоритетную очередь с бинарной кучей
   const priorityQueue = new PriorityQueue(totalCells);
@@ -117,8 +113,6 @@ export function generateStructure(size: number) {
   // добавляем соседей для начальной точки
   addNeighbours(0);
 
-  const start = performance.now();
-
   while (visitedCount < totalCells) {
     const minItem = priorityQueue.dequeue();
 
@@ -153,10 +147,6 @@ export function generateStructure(size: number) {
     // для этой вершины добавляем не посещенные вершины (соседей)
     addNeighbours(idx);
   }
-
-  const end = performance.now();
-  console.log(`Цикл while: ${end - start} мс`);
-  console.log('Количество всех итераций: ', visitedCount);
 
   return bordersBuffer;
 }

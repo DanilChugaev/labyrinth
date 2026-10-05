@@ -23,20 +23,24 @@ export function timerStart() {
   const currentTimeEl = document.querySelector<HTMLSpanElement>(`#${currentTimeId}`)!;
   const oldTimeEl = document.querySelector<HTMLSpanElement>(`#${bestTimeId}`)!;
 
+  clearInterval(intervalId);
+  counter = 0;
   const oldTime = getTimer();
 
-  oldTimeEl.innerHTML = formatTime(oldTime);
+  oldTimeEl.textContent = formatTime(oldTime);
+  currentTimeEl.textContent = formatTime(counter);
 
   intervalId = setInterval(() => {
     counter++;
 
-    currentTimeEl.innerHTML = formatTime(counter);
+    currentTimeEl.textContent = formatTime(counter);
   }, 1000);
 }
 
-export function timerStop() {
+export function timerStop(shouldSave = true) {
   clearInterval(intervalId);
-  saveTimer(counter);
+
+  if (shouldSave) saveTimer(counter);
 }
 
 function formatTime(seconds: number) {

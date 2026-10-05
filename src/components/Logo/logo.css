@@ -16,6 +16,14 @@
     color: var(--color);
 }
 
+.logo__version {
+    margin-left: 4px;
+    color: var(--text-secondary);
+    font-size: 0.25em;
+    font-weight: 500;
+    vertical-align: super;
+}
+
 @media (max-width: 869px) {
     .logo__img {
         width: 25px;

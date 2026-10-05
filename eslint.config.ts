@@ -6,6 +6,9 @@ import { defineConfig } from 'eslint/config';
 
 export default defineConfig([
   {
+    ignores: ['node_modules', 'dist', 'build', '*.d.ts'],
+  },
+  {
     files: ['**/*.{js,mjs,cjs,ts,mts,cts}'],
     plugins: {
       js,
@@ -17,7 +20,6 @@ export default defineConfig([
     rules: {
       'prettier/prettier': 'error',
     },
-    ignores: ['node_modules', 'dist', 'build', '*.d.ts'],
   },
   tseslint.configs.recommended,
 ]);
