@@ -210,6 +210,10 @@ export async function setupCanvas({
     if (currentX === size - 1 && currentY === size - 1) {
       gameStop();
       resultContainer.style.display = 'flex';
+      resultContainer.setAttribute('aria-hidden', 'false');
+      const nextLevelButton = resultContainer.querySelector<HTMLButtonElement>('#next-level');
+      const newLevelButton = resultContainer.querySelector<HTMLButtonElement>('#new-level');
+      (nextLevelButton?.hidden ? newLevelButton : nextLevelButton)?.focus();
 
       if (loadBooleanStorageValue(TIMER_KEY, true)) timerStop();
     }
@@ -223,6 +227,7 @@ export async function setupCanvas({
     currentY = 0;
     pathBuffer.clear();
     resultContainer.style.display = 'none';
+    resultContainer.setAttribute('aria-hidden', 'true');
     timerStop(false);
     setCanvasSize();
     viewport.fit();

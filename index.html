@@ -1,13 +1,48 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/labyrinth.svg" />
+    <link rel="icon" type="image/svg+xml" href="%BASE_URL%labyrinth.svg" />
+    <link rel="apple-touch-icon" href="%BASE_URL%icon-192x192.png" />
+    <link rel="canonical" href="https://danilchugaev.github.io/labyrinth/" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Labyrinth</title>
+    <meta name="description" content="Labyrinth — игра с процедурно генерируемыми лабиринтами. Проходите уникальные уровни с клавиатуры или сенсорного экрана." />
+    <meta name="theme-color" content="#1a1e28" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Labyrinth" />
+    <meta property="og:title" content="Labyrinth — процедурно генерируемые лабиринты" />
+    <meta property="og:description" content="Проходите уникальные лабиринты с клавиатуры или сенсорного экрана." />
+    <meta property="og:url" content="https://danilchugaev.github.io/labyrinth/" />
+    <meta property="og:image" content="https://danilchugaev.github.io/labyrinth/icon-512x512.png" />
+    <meta property="og:image:alt" content="Иконка игры Labyrinth" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Labyrinth — процедурно генерируемые лабиринты" />
+    <meta name="twitter:description" content="Проходите уникальные лабиринты с клавиатуры или сенсорного экрана." />
+    <meta name="twitter:image" content="https://danilchugaev.github.io/labyrinth/icon-512x512.png" />
+    <title>Labyrinth — процедурно генерируемые лабиринты</title>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "GameApplication",
+        "name": "Labyrinth",
+        "applicationCategory": "GameApplication",
+        "operatingSystem": "Web",
+        "inLanguage": "ru",
+        "url": "https://danilchugaev.github.io/labyrinth/",
+        "description": "Игра с процедурно генерируемыми лабиринтами для клавиатуры и сенсорных экранов.",
+        "image": "https://danilchugaev.github.io/labyrinth/icon-512x512.png"
+      }
+    </script>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app" aria-busy="true" aria-live="polite">
+      <p>Загрузка игры Labyrinth…</p>
+    </div>
+    <noscript>
+      <p>Для игры Labyrinth необходимо включить JavaScript.</p>
+    </noscript>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

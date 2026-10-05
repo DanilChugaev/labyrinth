@@ -51,7 +51,7 @@ async function main() {
   ];
 
   app.innerHTML = `
-    <div class="header">
+    <header class="header">
       ${Logo()}
       
       ${Timer(timerContainerId)}
@@ -60,27 +60,30 @@ async function main() {
         ${Settings({ items: settingsItems })}
       
         <div class="game__select-container">
-          <select class="game__select" id="select" disabled></select>
+          <label class="visually-hidden" for="select">Размер лабиринта</label>
+          <select class="game__select" id="select" disabled aria-label="Размер лабиринта"></select>
         </div>
         
         <button class="game__button" id="button" type="button" disabled>Новый лабиринт</button>
       </div>
-    </div>
+    </header>
     
-    <div class="game">
-      <div class="game__canvas-container">
+    <main class="game" aria-labelledby="game-title">
+      <h2 class="visually-hidden" id="game-title">Игровое поле</h2>
+      <p class="visually-hidden" id="game-instructions">Используйте кнопки направления или стрелки клавиатуры, чтобы перемещаться по лабиринту. Чтобы приблизить поле, используйте кнопки масштаба, жест двумя пальцами или Control и колесо мыши.</p>
+      <div class="game__canvas-container" aria-describedby="game-instructions">
         ${Preloader({
           id: preloaderId,
           color: figureColor,
         })}
         
-         <canvas id="canvas-background" class="canvas-background"></canvas>
-         <canvas id="canvas-path" class="canvas-path"></canvas>
-         <canvas id="canvas-point" class="canvas-point"></canvas>
-        
-        <div id="result-container" class="game__result">
-          <div>Победа!</div>
-          
+         <canvas id="canvas-background" class="canvas-background" aria-hidden="true"></canvas>
+         <canvas id="canvas-path" class="canvas-path" aria-hidden="true"></canvas>
+         <canvas id="canvas-point" class="canvas-point" aria-label="Лабиринт. Для движения используйте кнопки направления или стрелки клавиатуры.">Ваш браузер не поддерживает Canvas. Используйте современный браузер для игры.</canvas>
+
+        <div id="result-container" class="game__result" role="status" aria-live="assertive" aria-atomic="true" aria-labelledby="result-title" aria-hidden="true">
+          <div id="result-title">Победа!</div>
+
           <div>
             <button class="game__button" id="new-level" type="button">Новый лабиринт</button>
             <button class="game__button" id="next-level" type="button">Следующий уровень</button>
@@ -98,7 +101,7 @@ async function main() {
         
         ${ZoomControls()}
       </div>
-    </div>
+    </main>
   `;
 
   const elements = {
@@ -186,6 +189,7 @@ async function main() {
   elements.button.disabled = false;
   elements.select.disabled = false;
   elements.preloader.style.display = 'none';
+  app.setAttribute('aria-busy', 'false');
   updateNextLevelVisibility();
 }
 
