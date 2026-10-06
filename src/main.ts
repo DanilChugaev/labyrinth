@@ -10,6 +10,7 @@ import { Preloader } from './components/Preloader/Preloader.ts';
 import { Settings, setupSettingsCheckboxes } from './components/Settings/Settings.ts';
 import type { SettingsItem } from './types.ts';
 import { Logo } from './components/Logo/Logo.ts';
+import { Help, setupHelp } from './components/Help/Help.ts';
 import { Minimap, minimapIds, MinimapToggle } from './components/Minimap/Minimap.ts';
 import { Timer } from './components/Timer/Timer.ts';
 import { ZoomControls, zoomControlIds } from './components/Zoom/Zoom.ts';
@@ -114,6 +115,7 @@ async function main() {
       
       <div class="game__controls">
          ${MinimapToggle()}
+         ${Help()}
          
          <div class="game__arrows">
           <button class="game__button game-button--top" id="top" type="button"><span>↑</span></button>
@@ -122,8 +124,8 @@ async function main() {
           <button class="game__button game-button--right" id="right" type="button"><span>→</span></button>
         </div>
         
-         ${ZoomControls()}
-      </div>
+          ${ZoomControls()}
+       </div>
     </main>
   `;
 
@@ -191,6 +193,8 @@ async function main() {
     onMinimapChange: setMinimapVisibility,
   });
 
+  const { open: openHelp } = setupHelp();
+
   elements.resultContainer.addEventListener('cancel', event => event.preventDefault());
 
   setupButton(elements.button, () => void redrawLabyrinth());
@@ -221,6 +225,28 @@ async function main() {
     bottom: elements.bottom,
     right: elements.right,
     drawPoint,
+  });
+
+  document.addEventListener('keydown', event => {
+    const target = event.target;
+    const isFormControl =
+      target instanceof HTMLInputElement ||
+      target instanceof HTMLSelectElement ||
+      target instanceof HTMLTextAreaElement ||
+      (target instanceof HTMLElement && target.isContentEditable);
+
+    if (isFormControl || event.ctrlKey || event.metaKey || event.altKey) return;
+
+    if (event.key === '?') {
+      event.preventDefault();
+      openHelp();
+    } else if (event.key.toLowerCase() === 'r') {
+      event.preventDefault();
+      void redrawLabyrinth();
+    } else if (event.key.toLowerCase() === 'm') {
+      event.preventDefault();
+      elements.minimapToggle.click();
+    }
   });
 
   elements.button.disabled = false;

@@ -1,0 +1,139 @@
+.help-button {
+  display: grid;
+  place-items: center;
+  position: absolute;
+  top: 0;
+  left: 58px;
+  width: 54px;
+  height: 54px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background-color: var(--bg-color);
+  color: var(--color);
+  font: inherit;
+  font-size: 22px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--box-shadow);
+}
+
+.help-button:hover {
+  border-color: var(--border-color-hover);
+}
+
+.help-button:focus-visible {
+  outline: 2px solid var(--border-color-focus);
+  outline-offset: 2px;
+}
+
+.help-dialog {
+  width: min(calc(100vw - 32px), 440px);
+  margin: auto;
+  padding: 24px;
+  border: 1px solid var(--border-color);
+  border-radius: calc(var(--border-radius) * 2);
+  background-color: var(--bg-color);
+  color: var(--color);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+}
+
+.help-dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(3px);
+}
+
+.help-dialog__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+  margin-bottom: 20px;
+}
+
+.help-dialog__title {
+  margin: 0;
+  font-size: 26px;
+}
+
+.help-dialog__close {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color);
+  font: inherit;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.help-dialog__close:hover {
+  border-color: var(--border-color-hover);
+}
+
+.help-dialog__close:focus-visible {
+  outline: 2px solid var(--border-color-focus);
+  outline-offset: 2px;
+}
+
+.help-dialog__list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.help-dialog__list div {
+  display: grid;
+  grid-template-columns: minmax(108px, auto) 1fr;
+  align-items: center;
+  gap: 12px;
+}
+
+.help-dialog__list dt,
+.help-dialog__list dd {
+  margin: 0;
+}
+
+.help-dialog__list dt {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.help-dialog__list dd,
+.help-dialog__note {
+  color: var(--text-secondary);
+}
+
+.help-dialog kbd {
+  min-width: 28px;
+  padding: 3px 6px;
+  border: 1px solid var(--border-color);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background-color: color-mix(in srgb, var(--border-color) 15%, transparent);
+  color: var(--color);
+  font: inherit;
+  font-size: 13px;
+  text-align: center;
+}
+
+.help-dialog__note {
+  margin: 20px 0 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+@media (max-width: 579px) {
+  .help-dialog {
+    padding: 20px 16px;
+  }
+
+  .help-dialog__list div {
+    grid-template-columns: 96px 1fr;
+    gap: 8px;
+  }
+}
