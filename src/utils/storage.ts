@@ -57,7 +57,7 @@ export function setLabyrinthSize(size: number): void {
   );
 }
 
-function isValidLabyrinthSize(size: number): boolean {
+export function isValidLabyrinthSize(size: number): boolean {
   const isJuniorSize =
     size >= JUNIOR_MIN_CANVAS_SIZE &&
     size <= JUNIOR_MAX_CANVAS_SIZE &&

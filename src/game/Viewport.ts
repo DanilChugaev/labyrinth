@@ -1,3 +1,9 @@
+export interface ViewportSnapshot {
+  zoom: number;
+  centerX: number;
+  centerY: number;
+}
+
 export class Viewport {
   private readonly worldSize: number;
   private width = 1;
@@ -69,6 +75,21 @@ export class Viewport {
 
   getZoomPercent(): number {
     return Math.round((this.scale / this.minScale) * 100);
+  }
+
+  getSnapshot(): ViewportSnapshot {
+    return {
+      zoom: this.scale / this.minScale,
+      centerX: (this.width / 2 - this.offsetX) / this.scale,
+      centerY: (this.height / 2 - this.offsetY) / this.scale,
+    };
+  }
+
+  restore(snapshot: ViewportSnapshot): void {
+    this.scale = this.clampScale(this.minScale * snapshot.zoom);
+    this.offsetX = this.width / 2 - snapshot.centerX * this.scale;
+    this.offsetY = this.height / 2 - snapshot.centerY * this.scale;
+    this.clampPosition();
   }
 
   getVisibleBounds(): { minX: number; maxX: number; minY: number; maxY: number } {

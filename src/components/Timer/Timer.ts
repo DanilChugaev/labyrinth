@@ -19,12 +19,12 @@ export function Timer(timerContainerId: string) {
           </div>`;
 }
 
-export function timerStart() {
+export function timerStart(initialSeconds = 0): void {
   const currentTimeEl = document.querySelector<HTMLSpanElement>(`#${currentTimeId}`)!;
   const oldTimeEl = document.querySelector<HTMLSpanElement>(`#${bestTimeId}`)!;
 
   clearInterval(intervalId);
-  counter = 0;
+  counter = initialSeconds;
   const oldTime = getTimer();
 
   oldTimeEl.textContent = formatTime(oldTime);
@@ -42,6 +42,10 @@ export function timerStop(shouldSave = true): number {
 
   if (shouldSave) saveTimer(counter);
 
+  return counter;
+}
+
+export function getCurrentTimerValue(): number {
   return counter;
 }
 

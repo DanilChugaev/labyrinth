@@ -1,5 +1,10 @@
-import { formatTime, timerStart, timerStop } from '../components/Timer/Timer.ts';
-import { FAST_MOVEMENT_KEY, TIMER_KEY } from '../constants.ts';
+import {
+  formatTime,
+  getCurrentTimerValue,
+  timerStart,
+  timerStop,
+} from '../components/Timer/Timer.ts';
+import { FAST_MOVEMENT_KEY } from '../constants.ts';
 import { generateLabyrinth } from '../generator.ts';
 import {
   easeOutCubic,
@@ -10,6 +15,12 @@ import {
   type WallHitAnimation,
 } from '../game/animations.ts';
 import { Viewport } from '../game/Viewport.ts';
+import {
+  clearActiveGame,
+  loadActiveGame,
+  saveActiveGame,
+  type RestoredGame,
+} from '../game/savedGame.ts';
 import type { PointDirection } from '../types.ts';
 import {
   checkGameState,
@@ -18,6 +29,7 @@ import {
   getLabyrinthSize,
   getTimer,
   loadBooleanStorageValue,
+  setLabyrinthSize,
 } from '../utils/storage.ts';
 
 const MIN_VIEWPORT_SIZE = 160;
@@ -90,6 +102,8 @@ export async function setupCanvas({
   let goalAnimation: GoalAnimation | null = null;
   let animationFrameId: number | null = null;
   let isVictoryPending = false;
+  let saveTimeoutId: number | null = null;
+  let isTimerPaused = false;
 
   function getViewportSize(): number {
     const headerHeight = document.querySelector<HTMLElement>('.header')?.offsetHeight ?? 0;
@@ -114,6 +128,48 @@ export async function setupCanvas({
     });
 
     viewport.setSize(viewportSize, viewportSize);
+  }
+
+  function persistGame(): void {
+    if (!structure.length || checkGameState('win')) return;
+
+    const pathSnapshot = new Map([...pathBuffer].map(([y, columns]) => [y, new Set(columns)]));
+    const currentRow = pathSnapshot.get(currentY) ?? new Set<number>();
+    currentRow.add(currentX);
+    pathSnapshot.set(currentY, currentRow);
+
+    saveActiveGame({
+      size,
+      structure,
+      playerX: currentX,
+      playerY: currentY,
+      pathBuffer: pathSnapshot,
+      viewport: viewport.getSnapshot(),
+      elapsedSeconds: getCurrentTimerValue(),
+    });
+  }
+
+  function pauseTimer(): void {
+    if (isTimerPaused || checkGameState('win')) return;
+
+    timerStop(false);
+    isTimerPaused = true;
+  }
+
+  function resumeTimer(): void {
+    if (!isTimerPaused || checkGameState('win')) return;
+
+    timerStart(getCurrentTimerValue());
+    isTimerPaused = false;
+  }
+
+  function schedulePersist(): void {
+    if (saveTimeoutId !== null) clearTimeout(saveTimeoutId);
+
+    saveTimeoutId = window.setTimeout(() => {
+      saveTimeoutId = null;
+      persistGame();
+    }, 300);
   }
 
   function prepareContext(context: CanvasRenderingContext2D, clearColor?: string): void {
@@ -266,6 +322,7 @@ export async function setupCanvas({
     if (playerAnimation && getAnimationProgress(playerAnimation, now) === 1) {
       addPathPoint(playerAnimation.x, playerAnimation.y);
       playerAnimation = null;
+      persistGame();
     }
     if (wallHitAnimation && getAnimationProgress(wallHitAnimation, now) === 1) {
       wallHitAnimation = null;
@@ -358,14 +415,19 @@ export async function setupCanvas({
       wallHitAnimation = null;
     }
 
-    if (!direction || prefersReducedMotion.matches) addPathPoint(currentX, currentY);
+    if (!direction || prefersReducedMotion.matches) {
+      addPathPoint(currentX, currentY);
+      persistGame();
+    }
     viewport.keepCellVisible(currentX, currentY);
     requestRender();
 
     if (currentX === size - 1 && currentY === size - 1) {
       gameStop();
       const elapsedTime = timerStop();
+      isTimerPaused = false;
       updateVictoryStats(elapsedTime);
+      clearActiveGame();
 
       isVictoryPending = true;
     }
@@ -390,12 +452,7 @@ export async function setupCanvas({
     if (bestTimeElement) bestTimeElement.textContent = formatTime(getTimer());
   }
 
-  async function startLabyrinth(): Promise<void> {
-    const requestId = ++generationId;
-    size = Number(getLabyrinthSize());
-    viewport = new Viewport(size);
-    currentX = 0;
-    currentY = 0;
+  function resetGameState(): void {
     pathBuffer.clear();
     playerAnimation = null;
     wallHitAnimation = null;
@@ -403,20 +460,53 @@ export async function setupCanvas({
     isVictoryPending = false;
     if (animationFrameId !== null) cancelAnimationFrame(animationFrameId);
     animationFrameId = null;
+    if (saveTimeoutId !== null) clearTimeout(saveTimeoutId);
+    saveTimeoutId = null;
     if (resultContainer.open) resultContainer.close();
     timerStop(false);
+    isTimerPaused = false;
+  }
+
+  async function startNewLabyrinth(): Promise<void> {
+    const requestId = ++generationId;
+    size = Number(getLabyrinthSize());
+    viewport = new Viewport(size);
+    structure = new Uint8Array();
+    currentX = 0;
+    currentY = 0;
+    clearActiveGame();
+    resetGameState();
     setCanvasSize();
     viewport.fit();
     onZoomChange(viewport.getZoomPercent());
     gameStart();
 
-    if (loadBooleanStorageValue(TIMER_KEY, true)) timerStart();
+    timerStart();
+    isTimerPaused = false;
 
     const generatedStructure = await generateLabyrinth(size);
     if (requestId !== generationId) return;
 
     structure = generatedStructure;
     drawPoint();
+    canvasPoint.focus({ preventScroll: true });
+  }
+
+  function restoreLabyrinth(savedGame: RestoredGame): void {
+    size = savedGame.size;
+    setLabyrinthSize(size);
+    viewport = new Viewport(size);
+    currentX = savedGame.playerX;
+    currentY = savedGame.playerY;
+    resetGameState();
+    savedGame.pathBuffer.forEach((columns, y) => pathBuffer.set(y, new Set(columns)));
+    structure = savedGame.structure;
+    setCanvasSize();
+    viewport.restore(savedGame.viewport);
+    gameStart();
+    timerStart(savedGame.elapsedSeconds);
+    isTimerPaused = false;
+    render();
     canvasPoint.focus({ preventScroll: true });
   }
 
@@ -471,6 +561,7 @@ export async function setupCanvas({
       if (pinchDistance > 0 && pinchData.distance > 0) {
         viewport.zoomAt(pinchData.centerX, pinchData.centerY, pinchData.distance / pinchDistance);
         render();
+        schedulePersist();
       }
       pinchDistance = pinchData.distance;
       hasPinched = true;
@@ -481,6 +572,7 @@ export async function setupCanvas({
     if (hasDragged) {
       viewport.panBy(x - previousX, y - previousY);
       render();
+      schedulePersist();
     }
   });
 
@@ -525,6 +617,7 @@ export async function setupCanvas({
       const { x, y } = getPointerPosition(event);
       viewport.zoomAt(x, y, Math.exp(-event.deltaY * 0.002));
       render();
+      schedulePersist();
     },
     { passive: false },
   );
@@ -535,16 +628,32 @@ export async function setupCanvas({
 
     viewport.zoomAt(playerScreenX, playerScreenY, factor);
     render();
+    schedulePersist();
   }
 
   function fitToScreen(): void {
     viewport.fit();
     render();
+    schedulePersist();
   }
 
   window.addEventListener('resize', () => {
     setCanvasSize();
     render();
+    schedulePersist();
+  });
+
+  window.addEventListener('pagehide', () => {
+    pauseTimer();
+    persistGame();
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      pauseTimer();
+      persistGame();
+    } else {
+      resumeTimer();
+    }
   });
 
   document.addEventListener('themechange', () => render());
@@ -582,10 +691,15 @@ export async function setupCanvas({
     }
   });
 
-  await startLabyrinth();
+  const savedGame = loadActiveGame();
+  if (savedGame) {
+    restoreLabyrinth(savedGame);
+  } else {
+    await startNewLabyrinth();
+  }
 
   return {
-    redrawLabyrinth: startLabyrinth,
+    redrawLabyrinth: startNewLabyrinth,
     drawPoint,
     zoomIn: () => zoomAtPlayer(ZOOM_STEP),
     zoomOut: () => zoomAtPlayer(1 / ZOOM_STEP),

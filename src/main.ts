@@ -170,8 +170,8 @@ async function main() {
 
   elements.resultContainer.addEventListener('cancel', event => event.preventDefault());
 
-  setupButton(elements.button, redrawLabyrinth);
-  setupButton(elements.newLevel, redrawLabyrinth);
+  setupButton(elements.button, () => void redrawLabyrinth());
+  setupButton(elements.newLevel, () => void redrawLabyrinth());
   setupButton(elements.nextLevel, () => {
     let size = Number(getLabyrinthSize());
 
@@ -183,7 +183,7 @@ async function main() {
 
     setLabyrinthSize(size);
     updateNextLevelVisibility();
-    redrawLabyrinth();
+    void redrawLabyrinth();
   });
   setupSelect(elements.select, () => {
     updateNextLevelVisibility();

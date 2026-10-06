@@ -54,6 +54,13 @@
     margin-bottom: 5px;
 }
 
+.settings__hint {
+    margin: 8px 0 0;
+    color: var(--text-secondary);
+    font-size: 12px;
+    text-align: center;
+}
+
 @media (max-width: 869px) {
     .settings__popover {
         left: 0;

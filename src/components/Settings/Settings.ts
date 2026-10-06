@@ -23,9 +23,10 @@ export function Settings({ items }: { items: SettingsItem[] }) {
             <div class="settings__popover" popover id="settings-popover" role="dialog" aria-modal="false" aria-labelledby="settings-title" tabindex="-1">
                <div class="settings__title" id="settings-title">Настройки</div>
 
-               ${list.join('')}
-               ${ThemeSwitcher()}
-             </div>
+                ${list.join('')}
+                ${ThemeSwitcher()}
+                <p class="settings__hint">Прогресс игры сохраняется автоматически.</p>
+              </div>
           </div>`;
 }
 
