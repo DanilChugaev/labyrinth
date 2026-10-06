@@ -1,88 +1,93 @@
-# Labyrinth game
+# Labyrinth
 
-A labyrinth game where each level is unique
+> Процедурно генерируемая PWA-игра с бесконечными лабиринтами, масштабированием, миникартой и автосохранением прогресса.
 
-[PLAY HERE](https://danilchugaev.github.io/labyrinth/)
+[![Открыть игру](https://img.shields.io/badge/Играть-онлайн-2cb8a8?style=for-the-badge)](https://danilchugaev.github.io/labyrinth/)
 
-##  Features
+![Скриншот игрового поля Labyrinth](public/labyrinth.webp)
 
-- Procedural Labyrinth Generation: Every level creates a new, unique maze using algorithms for endless replayability
-- Controls: Use arrow keys `(↑ ← ↓ →)` to move the player through the labyrinth
-- Levels and Difficulty: Progress through levels with increasing complexity
-- Responsive Design: Works on desktop and mobile browsers
-- PWA: It works even without the Internet
+## Возможности
 
-## Run Locally
+- **Уникальный лабиринт в каждом раунде** — поле строится процедурно в Web Worker и не блокирует интерфейс.
+- **Масштабирование и навигация** — кнопки, клавиатура, жест pinch-to-zoom, `Ctrl`/`Cmd` + колесо и drag-панорамирование.
+- **Миникарта** для лабиринтов от `50 × 50` — показывает игрока, флаг, маршрут и текущую область просмотра.
+- **Автосохранение** — при обновлении страницы или возвращении в PWA восстанавливаются лабиринт, маршрут, игрок, камера и время.
+- **Статистика прохождения** — время, лучший результат, ходы, исследование поля, кратчайший маршрут и эффективность.
+- **Три режима темы** — светлая, тёмная и системная.
+- **Доступное управление** — клавиатура, экранные кнопки, touch-жесты, видимый focus и диалоги на нативных HTML-элементах.
+- **Уважение к системным настройкам** — поддерживаются `prefers-reduced-motion` и `prefers-color-scheme`.
+- **Offline-first PWA** — приложение можно установить и запускать без подключения к сети.
 
-Clone the project
+## Управление
 
-```bash
-  git clone git@github.com:DanilChugaev/labyrinth.git
+| Действие | Управление |
+| --- | --- |
+| Перемещение | <kbd>↑</kbd> <kbd>→</kbd> <kbd>↓</kbd> <kbd>←</kbd> или экранные кнопки |
+| Масштаб | <kbd>+</kbd> / <kbd>−</kbd>, pinch, <kbd>Ctrl</kbd>/<kbd>Cmd</kbd> + колесо |
+| Показать поле целиком | <kbd>0</kbd> |
+| Новый лабиринт | <kbd>R</kbd> |
+| Показать / скрыть миникарту | <kbd>M</kbd> |
+| Справка | <kbd>?</kbd> |
+
+На touch-устройствах используйте один палец для перемещения поля и два пальца для масштабирования.
+
+## Как это устроено
+
+```text
+main.ts
+ ├─ UI-компоненты: настройки, тема, масштаб, миникарта, справка
+ ├─ Canvas renderer: поле, маршрут, игрок, цель и анимации
+ ├─ Viewport: zoom, pan, сохранение положения камеры
+ ├─ localStorage: настройки, рекорды и незавершённая игра
+ └─ Web Worker
+     ├─ процедурная генерация лабиринта
+     └─ поиск кратчайшего маршрута (BFS)
 ```
 
-Go to the project directory
+Стены клетки кодируются битовой маской в `Uint8Array`, а генерация использует приоритетную очередь. Такой формат экономит память и подходит для больших полей.
+
+## Технологии
+
+- TypeScript
+- Vite
+- Canvas 2D API
+- Web Workers
+- Progressive Web App / Workbox
+- CSS custom properties, системная светлая и тёмная темы
+- ESLint и Prettier
+- GitHub Pages + GitHub Actions
+
+## Локальный запуск
 
 ```bash
-  cd labyrinth
+git clone git@github.com:DanilChugaev/labyrinth.git
+cd labyrinth
+yarn install
+yarn dev
 ```
 
-Install dependencies
+Откройте [http://localhost:5173/labyrinth/](http://localhost:5173/labyrinth/) в браузере. Базовый путь `/labyrinth/` соответствует публикации на GitHub Pages.
+
+## Команды
 
 ```bash
-  yarn install
+# Проверка кода
+yarn lint
+
+# Проверка форматирования
+yarn format:check
+
+# Production-сборка
+yarn build
+
+# Локальный просмотр production-сборки
+yarn preview
 ```
 
-Start the development server
+## Деплой
 
-```bash
-  yarn dev
-```
+Проект автоматически публикуется на GitHub Pages после push в ветку `master`. Конфигурация workflow: [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml).
 
-Open http://localhost:5173/labyrinth/ in your browser (note: the /labyrinth/ base path is for GitHub Pages; adjust if needed locally)
+## Лицензия
 
-## Lint project
-
-To lint code in project
-
-```bash
- yarn lint:fix
-```
-
-## Build For Production
-
-To generate production build
-
-```bash
- yarn build
-```
-
-Preview build
-
-```bash
- yarn preview
-```
-
-## Deployment
-
-This project is deployed to GitHub Pages using GitHub Actions. See `.github/workflows/deploy.yml` for the workflow configuration
-
-## Technologies Used
-
-- TypeScript: For type-safe JavaScript
-- Vite: Fast build tool and dev server
-- ESLint & Prettier: For code linting and formatting
-- Web Workers: Used for maze generation to avoid blocking the UI thread
-
-## Contributing
-
-Contributions are welcome! Fork the repository, create a branch, and submit a pull request
-
-- Fork the project
-- Create your feature branch (git checkout -b feature/AmazingFeature)
-- Commit your changes (git commit -m 'Add some AmazingFeature')
-- Push to the branch (git push origin feature/AmazingFeature)
-- Open a pull request
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](https://github.com/DanilChugaev/labyrinth/blob/master/LICENSE) file for details
+Проект распространяется по лицензии [MIT](LICENSE).

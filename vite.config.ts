@@ -13,8 +13,8 @@ export default defineConfig({
       manifest: {
         name: 'Labyrinth',
         short_name: 'Labyrinth',
-        description: 'Procedural labyrinth game',
-        theme_color: '#242424',
+        description: 'Процедурно генерируемые лабиринты с масштабированием и автосохранением',
+        theme_color: '#1a1e28',
         icons: [
           {
             src: 'icon-192x192.png',
@@ -27,9 +27,18 @@ export default defineConfig({
             type: 'image/png',
           },
         ],
+        screenshots: [
+          {
+            src: 'labyrinth.webp',
+            sizes: '1200x687',
+            type: 'image/webp',
+            form_factor: 'wide',
+            label: 'Игровое поле Labyrinth',
+          },
+        ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,png,svg}'],
+        globPatterns: ['**/*.{js,css,html,png,svg,webp}'],
       },
     }),
   ],
