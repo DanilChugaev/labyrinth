@@ -18,6 +18,7 @@
   .zoom-controls {
     position: static;
     margin-bottom: 20px;
+    align-self: flex-end;
   }
 }
 

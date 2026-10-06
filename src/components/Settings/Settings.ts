@@ -1,7 +1,12 @@
 import './settings.css';
 import settings from '/settings.svg';
 import type { SettingsItem } from '../../types.ts';
-import { FAST_MOVEMENT_KEY, TIMER_KEY, VIEW_PATH_KEY } from '../../constants.ts';
+import {
+  FAST_MOVEMENT_KEY,
+  MINIMAP_VISIBLE_KEY,
+  TIMER_KEY,
+  VIEW_PATH_KEY,
+} from '../../constants.ts';
 import { loadBooleanStorageValue, saveStorageValue } from '../../utils/storage.ts';
 import { ThemeSwitcher, setupThemeSwitcher } from '../ThemeSwitcher/ThemeSwitcher.ts';
 
@@ -36,12 +41,16 @@ export function setupSettingsCheckboxes({
   checkboxViewPath,
   checkboxFastMovement,
   checkboxTimer,
+  checkboxMinimap,
+  onMinimapChange,
 }: {
   canvasPath: HTMLCanvasElement;
   timerContainer: HTMLDivElement;
   checkboxViewPath: HTMLInputElement;
   checkboxFastMovement: HTMLInputElement;
   checkboxTimer: HTMLInputElement;
+  checkboxMinimap: HTMLInputElement;
+  onMinimapChange: (isVisible: boolean) => void;
 }) {
   setupSettingsPopover();
   setupThemeSwitcher();
@@ -49,6 +58,7 @@ export function setupSettingsCheckboxes({
   checkboxFastMovement.checked = loadBooleanStorageValue(FAST_MOVEMENT_KEY, true);
   checkboxFastMovement.disabled = !checkboxViewPath.checked;
   checkboxTimer.checked = loadBooleanStorageValue(TIMER_KEY, true);
+  checkboxMinimap.checked = loadBooleanStorageValue(MINIMAP_VISIBLE_KEY, true);
 
   changeDisplay(canvasPath, checkboxViewPath.checked);
 
@@ -70,6 +80,10 @@ export function setupSettingsCheckboxes({
   checkboxTimer.onchange = () => {
     changeDisplay(timerContainer, checkboxTimer.checked, 'flex');
     saveStorageValue(TIMER_KEY, checkboxTimer.checked.toString());
+  };
+
+  checkboxMinimap.onchange = () => {
+    onMinimapChange(checkboxMinimap.checked);
   };
 }
 

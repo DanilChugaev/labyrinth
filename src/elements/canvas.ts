@@ -4,7 +4,7 @@ import {
   timerStart,
   timerStop,
 } from '../components/Timer/Timer.ts';
-import { FAST_MOVEMENT_KEY } from '../constants.ts';
+import { FAST_MOVEMENT_KEY, MINIMAP_VISIBLE_KEY } from '../constants.ts';
 import { generateLabyrinth } from '../generator.ts';
 import {
   easeOutCubic,
@@ -15,6 +15,7 @@ import {
   type WallHitAnimation,
 } from '../game/animations.ts';
 import { Viewport } from '../game/Viewport.ts';
+import { MinimapRenderer } from '../rendering/MinimapRenderer.ts';
 import {
   clearActiveGame,
   loadActiveGame,
@@ -29,6 +30,7 @@ import {
   getLabyrinthSize,
   getTimer,
   loadBooleanStorageValue,
+  saveStorageValue,
   setLabyrinthSize,
 } from '../utils/storage.ts';
 
@@ -38,6 +40,7 @@ const ZOOM_STEP = 1.25;
 const PLAYER_MOVE_DURATION = 130;
 const WALL_HIT_DURATION = 140;
 const GOAL_DURATION = 360;
+const MINIMAP_MIN_SIZE = 50;
 
 let currentY = 0;
 let currentX = 0;
@@ -68,22 +71,31 @@ interface CanvasSetup {
   canvasBackground: HTMLCanvasElement;
   canvasPath: HTMLCanvasElement;
   canvasPoint: HTMLCanvasElement;
+  minimap: HTMLCanvasElement;
+  minimapContainer: HTMLDivElement;
+  minimapToggle: HTMLButtonElement;
   canvasContainer: HTMLDivElement;
   resultContainer: HTMLDialogElement;
   onZoomChange: (zoomPercent: number) => void;
+  onMinimapVisibilityChange: (isVisible: boolean) => void;
 }
 
 export async function setupCanvas({
   canvasBackground,
   canvasPath,
   canvasPoint,
+  minimap,
+  minimapContainer,
+  minimapToggle,
   canvasContainer,
   resultContainer,
   onZoomChange,
+  onMinimapVisibilityChange,
 }: CanvasSetup) {
   const backgroundContext = canvasBackground.getContext('2d')!;
   const pathContext = canvasPath.getContext('2d')!;
   const pointContext = canvasPoint.getContext('2d')!;
+  const minimapRenderer = new MinimapRenderer(minimap);
 
   let size = Number(getLabyrinthSize());
   let structure = new Uint8Array();
@@ -104,6 +116,8 @@ export async function setupCanvas({
   let isVictoryPending = false;
   let saveTimeoutId: number | null = null;
   let isTimerPaused = false;
+  let isMinimapDragging = false;
+  let isMinimapEnabled = loadBooleanStorageValue(MINIMAP_VISIBLE_KEY, true);
 
   function getViewportSize(): number {
     const headerHeight = document.querySelector<HTMLElement>('.header')?.offsetHeight ?? 0;
@@ -128,6 +142,38 @@ export async function setupCanvas({
     });
 
     viewport.setSize(viewportSize, viewportSize);
+  }
+
+  function isMinimapVisible(): boolean {
+    return size >= MINIMAP_MIN_SIZE && isMinimapEnabled;
+  }
+
+  function updateMinimapVisibility(): void {
+    minimapContainer.hidden = !isMinimapVisible();
+    minimapToggle.hidden = size < MINIMAP_MIN_SIZE;
+    minimapToggle.setAttribute('aria-pressed', String(isMinimapEnabled));
+    minimapToggle.setAttribute(
+      'aria-label',
+      isMinimapEnabled ? 'Скрыть миникарту' : 'Показать миникарту',
+    );
+    onMinimapVisibilityChange(isMinimapEnabled);
+  }
+
+  function setMinimapVisibility(isVisible: boolean): void {
+    isMinimapEnabled = isVisible;
+    saveStorageValue(MINIMAP_VISIBLE_KEY, String(isMinimapEnabled));
+    updateMinimapVisibility();
+    if (isMinimapEnabled) renderMinimap();
+  }
+
+  function renderMinimap(): void {
+    if (!isMinimapVisible()) return;
+
+    minimapRenderer.render(viewport, {
+      playerX: currentX,
+      playerY: currentY,
+      pathBuffer,
+    });
   }
 
   function persistGame(): void {
@@ -303,6 +349,7 @@ export async function setupCanvas({
     drawLabyrinth(now);
     drawPath();
     drawPlayer(now);
+    renderMinimap();
     onZoomChange(viewport.getZoomPercent());
   }
 
@@ -488,6 +535,8 @@ export async function setupCanvas({
     if (requestId !== generationId) return;
 
     structure = generatedStructure;
+    minimapRenderer.setMaze(structure, size);
+    updateMinimapVisibility();
     drawPoint();
     canvasPoint.focus({ preventScroll: true });
   }
@@ -501,8 +550,10 @@ export async function setupCanvas({
     resetGameState();
     savedGame.pathBuffer.forEach((columns, y) => pathBuffer.set(y, new Set(columns)));
     structure = savedGame.structure;
+    minimapRenderer.setMaze(structure, size);
     setCanvasSize();
     viewport.restore(savedGame.viewport);
+    updateMinimapVisibility();
     gameStart();
     timerStart(savedGame.elapsedSeconds);
     isTimerPaused = false;
@@ -514,6 +565,42 @@ export async function setupCanvas({
     const rect = canvasPoint.getBoundingClientRect();
     return { x: event.clientX - rect.left, y: event.clientY - rect.top };
   }
+
+  function centerViewportFromMinimap(event: PointerEvent): void {
+    const rect = minimap.getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width) * size;
+    const y = ((event.clientY - rect.top) / rect.height) * size;
+
+    viewport.centerOn(x, y);
+    render();
+    schedulePersist();
+  }
+
+  minimap.addEventListener('pointerdown', event => {
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+
+    isMinimapDragging = true;
+    minimap.setPointerCapture(event.pointerId);
+    centerViewportFromMinimap(event);
+  });
+
+  minimap.addEventListener('pointermove', event => {
+    if (!isMinimapDragging) return;
+
+    centerViewportFromMinimap(event);
+  });
+
+  function finishMinimapPointer(event: PointerEvent): void {
+    isMinimapDragging = false;
+    if (minimap.hasPointerCapture(event.pointerId)) minimap.releasePointerCapture(event.pointerId);
+  }
+
+  minimap.addEventListener('pointerup', finishMinimapPointer);
+  minimap.addEventListener('pointercancel', finishMinimapPointer);
+
+  minimapToggle.addEventListener('click', () => {
+    setMinimapVisibility(!isMinimapEnabled);
+  });
 
   function getPinchData(): { centerX: number; centerY: number; distance: number } | null {
     const pointers = [...activePointers.values()];
@@ -656,7 +743,10 @@ export async function setupCanvas({
     }
   });
 
-  document.addEventListener('themechange', () => render());
+  document.addEventListener('themechange', () => {
+    minimapRenderer.invalidateTheme();
+    render();
+  });
   prefersReducedMotion.addEventListener('change', () => {
     if (!prefersReducedMotion.matches) return;
 
@@ -704,5 +794,6 @@ export async function setupCanvas({
     zoomIn: () => zoomAtPlayer(ZOOM_STEP),
     zoomOut: () => zoomAtPlayer(1 / ZOOM_STEP),
     fitToScreen,
+    setMinimapVisibility,
   };
 }

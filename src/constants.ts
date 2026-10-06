@@ -15,3 +15,4 @@ export const TIMER_KEY = 'TIMER_KEY';
 export const TIMER_VALUE_KEY = 'TIMER_VALUE_KEY';
 export const THEME_KEY = 'LABYRINTH_THEME_KEY';
 export const ACTIVE_GAME_KEY = 'ACTIVE_GAME_KEY';
+export const MINIMAP_VISIBLE_KEY = 'MINIMAP_VISIBLE_KEY';

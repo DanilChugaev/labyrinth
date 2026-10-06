@@ -4,6 +4,13 @@ export interface ViewportSnapshot {
   centerY: number;
 }
 
+export interface ViewportWorldBounds {
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
+}
+
 export class Viewport {
   private readonly worldSize: number;
   private width = 1;
@@ -90,6 +97,21 @@ export class Viewport {
     this.offsetX = this.width / 2 - snapshot.centerX * this.scale;
     this.offsetY = this.height / 2 - snapshot.centerY * this.scale;
     this.clampPosition();
+  }
+
+  centerOn(x: number, y: number): void {
+    this.offsetX = this.width / 2 - x * this.scale;
+    this.offsetY = this.height / 2 - y * this.scale;
+    this.clampPosition();
+  }
+
+  getWorldBounds(): ViewportWorldBounds {
+    return {
+      minX: Math.max(0, -this.offsetX / this.scale),
+      maxX: Math.min(this.worldSize, (this.width - this.offsetX) / this.scale),
+      minY: Math.max(0, -this.offsetY / this.scale),
+      maxY: Math.min(this.worldSize, (this.height - this.offsetY) / this.scale),
+    };
   }
 
   getVisibleBounds(): { minX: number; maxX: number; minY: number; maxY: number } {

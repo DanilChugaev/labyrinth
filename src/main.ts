@@ -10,6 +10,7 @@ import { Preloader } from './components/Preloader/Preloader.ts';
 import { Settings, setupSettingsCheckboxes } from './components/Settings/Settings.ts';
 import type { SettingsItem } from './types.ts';
 import { Logo } from './components/Logo/Logo.ts';
+import { Minimap, minimapIds, MinimapToggle } from './components/Minimap/Minimap.ts';
 import { Timer } from './components/Timer/Timer.ts';
 import { ZoomControls, zoomControlIds } from './components/Zoom/Zoom.ts';
 import { getLabyrinthSize, setLabyrinthSize } from './utils/storage.ts';
@@ -28,6 +29,7 @@ async function main() {
   const checkboxViewPathId = 'checkbox-view-path';
   const checkboxFastMovementId = 'checkbox-fast-movement';
   const checkboxTimerId = 'checkbox-timer';
+  const checkboxMinimapId = 'checkbox-minimap';
 
   const timerContainerId = 'timer-container-id';
 
@@ -46,6 +48,11 @@ async function main() {
       id: checkboxTimerId,
       label: 'Таймер',
       title: '',
+    },
+    {
+      id: checkboxMinimapId,
+      label: 'Миникарта',
+      title: 'Доступна для лабиринтов от 50 × 50',
     },
   ];
 
@@ -76,6 +83,7 @@ async function main() {
          <canvas id="canvas-background" class="canvas-background" aria-hidden="true"></canvas>
          <canvas id="canvas-path" class="canvas-path" aria-hidden="true"></canvas>
          <canvas id="canvas-point" class="canvas-point" tabindex="0" aria-label="Лабиринт. Для движения используйте кнопки направления или стрелки клавиатуры.">Ваш браузер не поддерживает Canvas. Используйте современный браузер для игры.</canvas>
+         ${Minimap()}
 
         <dialog id="result-container" class="game__result" aria-labelledby="result-title" aria-describedby="result-description">
           <div class="game__result-icon" aria-hidden="true">✦</div>
@@ -105,14 +113,16 @@ async function main() {
       </div>
       
       <div class="game__controls">
-        <div class="game__arrows">
+         ${MinimapToggle()}
+         
+         <div class="game__arrows">
           <button class="game__button game-button--top" id="top" type="button"><span>↑</span></button>
           <button class="game__button game-button--left" id="left" type="button"><span>←</span></button>
           <button class="game__button game-button--bottom" id="bottom" type="button"><span>↓</span></button>
           <button class="game__button game-button--right" id="right" type="button"><span>→</span></button>
         </div>
         
-        ${ZoomControls()}
+         ${ZoomControls()}
       </div>
     </main>
   `;
@@ -121,6 +131,9 @@ async function main() {
     canvasBackground: document.querySelector<HTMLCanvasElement>('#canvas-background')!,
     canvasPath: document.querySelector<HTMLCanvasElement>('#canvas-path')!,
     canvasPoint: document.querySelector<HTMLCanvasElement>('#canvas-point')!,
+    minimap: document.querySelector<HTMLCanvasElement>(`#${minimapIds.canvas}`)!,
+    minimapContainer: document.querySelector<HTMLDivElement>(`#${minimapIds.container}`)!,
+    minimapToggle: document.querySelector<HTMLButtonElement>(`#${minimapIds.toggle}`)!,
     canvasContainer: document.querySelector<HTMLDivElement>('.game__canvas-container')!,
     button: document.querySelector<HTMLButtonElement>('#button')!,
     newLevel: document.querySelector<HTMLButtonElement>('#new-level')!,
@@ -132,6 +145,7 @@ async function main() {
     checkboxViewPath: document.querySelector<HTMLInputElement>(`#${checkboxViewPathId}`)!,
     checkboxFastMovement: document.querySelector<HTMLInputElement>(`#${checkboxFastMovementId}`)!,
     checkboxTimer: document.querySelector<HTMLInputElement>(`#${checkboxTimerId}`)!,
+    checkboxMinimap: document.querySelector<HTMLInputElement>(`#${checkboxMinimapId}`)!,
 
     top: document.querySelector<HTMLButtonElement>('#top')!,
     left: document.querySelector<HTMLButtonElement>('#left')!,
@@ -148,17 +162,24 @@ async function main() {
     elements.nextLevel.hidden = Number(getLabyrinthSize()) >= MAX_CANVAS_SIZE;
   }
 
-  const { redrawLabyrinth, drawPoint, zoomIn, zoomOut, fitToScreen } = await setupCanvas({
-    canvasBackground: elements.canvasBackground,
-    canvasPath: elements.canvasPath,
-    canvasPoint: elements.canvasPoint,
-    canvasContainer: elements.canvasContainer,
-    resultContainer: elements.resultContainer,
-    onZoomChange: zoomPercent => {
-      elements.zoomValue.value = `${zoomPercent}%`;
-      elements.zoomValue.textContent = `${zoomPercent}%`;
-    },
-  });
+  const { redrawLabyrinth, drawPoint, zoomIn, zoomOut, fitToScreen, setMinimapVisibility } =
+    await setupCanvas({
+      canvasBackground: elements.canvasBackground,
+      canvasPath: elements.canvasPath,
+      canvasPoint: elements.canvasPoint,
+      minimap: elements.minimap,
+      minimapContainer: elements.minimapContainer,
+      minimapToggle: elements.minimapToggle,
+      canvasContainer: elements.canvasContainer,
+      resultContainer: elements.resultContainer,
+      onZoomChange: zoomPercent => {
+        elements.zoomValue.value = `${zoomPercent}%`;
+        elements.zoomValue.textContent = `${zoomPercent}%`;
+      },
+      onMinimapVisibilityChange: isVisible => {
+        elements.checkboxMinimap.checked = isVisible;
+      },
+    });
 
   setupSettingsCheckboxes({
     canvasPath: elements.canvasPath,
@@ -166,6 +187,8 @@ async function main() {
     checkboxViewPath: elements.checkboxViewPath,
     checkboxFastMovement: elements.checkboxFastMovement,
     checkboxTimer: elements.checkboxTimer,
+    checkboxMinimap: elements.checkboxMinimap,
+    onMinimapChange: setMinimapVisibility,
   });
 
   elements.resultContainer.addEventListener('cancel', event => event.preventDefault());
