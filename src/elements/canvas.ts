@@ -5,7 +5,7 @@ import {
   timerStop,
 } from '../components/Timer/Timer.ts';
 import { FAST_MOVEMENT_KEY, MINIMAP_VISIBLE_KEY } from '../constants.ts';
-import { generateLabyrinth } from '../generator.ts';
+import { calculateShortestPathLength, generateLabyrinth } from '../generator.ts';
 import {
   easeOutCubic,
   getAnimationProgress,
@@ -15,6 +15,12 @@ import {
   type WallHitAnimation,
 } from '../game/animations.ts';
 import { Viewport } from '../game/Viewport.ts';
+import {
+  createGameStats,
+  getEfficiency,
+  getExplorationPercent,
+  type GameStats,
+} from '../game/gameStats.ts';
 import { MinimapRenderer } from '../rendering/MinimapRenderer.ts';
 import {
   clearActiveGame,
@@ -118,6 +124,8 @@ export async function setupCanvas({
   let isTimerPaused = false;
   let isMinimapDragging = false;
   let isMinimapEnabled = loadBooleanStorageValue(MINIMAP_VISIBLE_KEY, true);
+  let gameStats: GameStats = createGameStats();
+  let winningElapsedTime: number | null = null;
 
   function getViewportSize(): number {
     const headerHeight = document.querySelector<HTMLElement>('.header')?.offsetHeight ?? 0;
@@ -150,12 +158,20 @@ export async function setupCanvas({
 
   function updateMinimapVisibility(): void {
     minimapContainer.hidden = !isMinimapVisible();
-    minimapToggle.hidden = size < MINIMAP_MIN_SIZE;
+    minimapToggle.disabled = size < MINIMAP_MIN_SIZE;
     minimapToggle.setAttribute('aria-pressed', String(isMinimapEnabled));
     minimapToggle.setAttribute(
       'aria-label',
-      isMinimapEnabled ? 'Скрыть миникарту' : 'Показать миникарту',
+      size < MINIMAP_MIN_SIZE
+        ? 'Миникарта доступна для лабиринтов от 50 × 50'
+        : isMinimapEnabled
+          ? 'Скрыть миникарту'
+          : 'Показать миникарту',
     );
+    minimapToggle.title =
+      size < MINIMAP_MIN_SIZE
+        ? 'Миникарта доступна для лабиринтов от 50 × 50'
+        : 'Показать или скрыть миникарту';
     onMinimapVisibilityChange(isMinimapEnabled);
   }
 
@@ -192,6 +208,9 @@ export async function setupCanvas({
       pathBuffer: pathSnapshot,
       viewport: viewport.getSnapshot(),
       elapsedSeconds: getCurrentTimerValue(),
+      moves: gameStats.moves,
+      visitedCells: gameStats.visitedCells,
+      shortestPathLength: gameStats.shortestPathLength,
     });
   }
 
@@ -368,6 +387,7 @@ export async function setupCanvas({
   function updateAnimations(now: number): boolean {
     if (playerAnimation && getAnimationProgress(playerAnimation, now) === 1) {
       addPathPoint(playerAnimation.x, playerAnimation.y);
+      trackSuccessfulMove(playerAnimation.x, playerAnimation.y);
       playerAnimation = null;
       persistGame();
     }
@@ -397,6 +417,11 @@ export async function setupCanvas({
     const row = pathBuffer.get(y) ?? new Set<number>();
     row.add(x);
     pathBuffer.set(y, row);
+  }
+
+  function trackSuccessfulMove(x = currentX, y = currentY): void {
+    if (gameStats.moves !== null) gameStats.moves++;
+    gameStats.visitedCells.add(y * size + x);
   }
 
   function getPlayerPosition(now: number): { x: number; y: number } {
@@ -449,7 +474,10 @@ export async function setupCanvas({
     }
 
     if (direction && hasMoved && !prefersReducedMotion.matches) {
-      if (playerAnimation) addPathPoint(previousX, previousY);
+      if (playerAnimation) {
+        addPathPoint(previousX, previousY);
+        trackSuccessfulMove(previousX, previousY);
+      }
 
       playerAnimation = {
         fromX: previousPosition.x,
@@ -464,6 +492,7 @@ export async function setupCanvas({
 
     if (!direction || prefersReducedMotion.matches) {
       addPathPoint(currentX, currentY);
+      if (direction) trackSuccessfulMove();
       persistGame();
     }
     viewport.keepCellVisible(currentX, currentY);
@@ -473,7 +502,7 @@ export async function setupCanvas({
       gameStop();
       const elapsedTime = timerStop();
       isTimerPaused = false;
-      updateVictoryStats(elapsedTime);
+      winningElapsedTime = elapsedTime;
       clearActiveGame();
 
       isVictoryPending = true;
@@ -483,6 +512,7 @@ export async function setupCanvas({
   function openVictoryDialog(): void {
     if (resultContainer.open) return;
 
+    updateVictoryStats(winningElapsedTime ?? getCurrentTimerValue());
     resultContainer.showModal();
     const nextLevelButton = resultContainer.querySelector<HTMLButtonElement>('#next-level');
     const newLevelButton = resultContainer.querySelector<HTMLButtonElement>('#new-level');
@@ -497,6 +527,31 @@ export async function setupCanvas({
     if (sizeElement) sizeElement.textContent = `${size} × ${size}`;
     if (timeElement) timeElement.textContent = formatTime(elapsedTime);
     if (bestTimeElement) bestTimeElement.textContent = formatTime(getTimer());
+
+    const movesElement = resultContainer.querySelector<HTMLElement>('#result-moves');
+    const visitedElement = resultContainer.querySelector<HTMLElement>('#result-visited');
+    const explorationElement = resultContainer.querySelector<HTMLElement>('#result-exploration');
+    const shortestPathElement = resultContainer.querySelector<HTMLElement>('#result-shortest-path');
+    const efficiencyElement = resultContainer.querySelector<HTMLElement>('#result-efficiency');
+    const totalCells = size * size;
+    const exploration = getExplorationPercent(gameStats, totalCells);
+    const efficiency = getEfficiency(gameStats);
+
+    if (movesElement) {
+      movesElement.textContent = gameStats.moves?.toString() ?? '—';
+    }
+    if (visitedElement) {
+      visitedElement.textContent = `${gameStats.visitedCells.size} / ${totalCells}`;
+    }
+    if (explorationElement) {
+      explorationElement.textContent = `${exploration}%`;
+    }
+    if (shortestPathElement) {
+      shortestPathElement.textContent = gameStats.shortestPathLength?.toString() ?? '—';
+    }
+    if (efficiencyElement) {
+      efficiencyElement.textContent = efficiency === null ? '—' : `${efficiency}%`;
+    }
   }
 
   function resetGameState(): void {
@@ -505,6 +560,7 @@ export async function setupCanvas({
     wallHitAnimation = null;
     goalAnimation = null;
     isVictoryPending = false;
+    winningElapsedTime = null;
     if (animationFrameId !== null) cancelAnimationFrame(animationFrameId);
     animationFrameId = null;
     if (saveTimeoutId !== null) clearTimeout(saveTimeoutId);
@@ -521,6 +577,8 @@ export async function setupCanvas({
     structure = new Uint8Array();
     currentX = 0;
     currentY = 0;
+    gameStats = createGameStats();
+    winningElapsedTime = null;
     clearActiveGame();
     resetGameState();
     setCanvasSize();
@@ -531,10 +589,11 @@ export async function setupCanvas({
     timerStart();
     isTimerPaused = false;
 
-    const generatedStructure = await generateLabyrinth(size);
+    const generatedLabyrinth = await generateLabyrinth(size);
     if (requestId !== generationId) return;
 
-    structure = generatedStructure;
+    structure = generatedLabyrinth.structure;
+    gameStats.shortestPathLength = generatedLabyrinth.shortestPathLength;
     minimapRenderer.setMaze(structure, size);
     updateMinimapVisibility();
     drawPoint();
@@ -547,9 +606,15 @@ export async function setupCanvas({
     viewport = new Viewport(size);
     currentX = savedGame.playerX;
     currentY = savedGame.playerY;
+    winningElapsedTime = null;
     resetGameState();
     savedGame.pathBuffer.forEach((columns, y) => pathBuffer.set(y, new Set(columns)));
     structure = savedGame.structure;
+    gameStats = {
+      moves: savedGame.moves,
+      visitedCells: savedGame.visitedCells,
+      shortestPathLength: savedGame.shortestPathLength,
+    };
     minimapRenderer.setMaze(structure, size);
     setCanvasSize();
     viewport.restore(savedGame.viewport);
@@ -559,6 +624,13 @@ export async function setupCanvas({
     isTimerPaused = false;
     render();
     canvasPoint.focus({ preventScroll: true });
+
+    if (gameStats.shortestPathLength === null) {
+      void calculateShortestPathLength(structure.slice(), size).then(shortestPathLength => {
+        gameStats.shortestPathLength = shortestPathLength;
+        persistGame();
+      });
+    }
   }
 
   function getPointerPosition(event: PointerEvent | WheelEvent): { x: number; y: number } {

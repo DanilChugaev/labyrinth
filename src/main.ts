@@ -106,6 +106,17 @@ async function main() {
             </div>
           </dl>
 
+          <section class="game__result-performance" aria-labelledby="result-performance-title">
+            <h3 class="game__result-performance-title" id="result-performance-title">Статистика прохождения</h3>
+            <dl class="game__result-performance-grid">
+              <div><dt>Ходы</dt><dd id="result-moves">—</dd></div>
+              <div><dt>Уникальные клетки</dt><dd id="result-visited">—</dd></div>
+              <div><dt>Исследовано</dt><dd id="result-exploration">—</dd></div>
+              <div><dt>Кратчайший путь</dt><dd id="result-shortest-path">—</dd></div>
+              <div><dt>Эффективность</dt><dd id="result-efficiency">—</dd></div>
+            </dl>
+          </section>
+
           <div class="game__result-actions">
             <button class="game__button" id="new-level" type="button">Новый лабиринт</button>
             <button class="game__button" id="next-level" type="button">Следующий уровень</button>

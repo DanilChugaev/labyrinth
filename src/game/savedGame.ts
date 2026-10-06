@@ -13,10 +13,10 @@ import {
   saveStorageValue,
 } from '../utils/storage.ts';
 
-const SAVED_GAME_VERSION = 1;
+const SAVED_GAME_VERSION = 2;
 
-interface StoredGame {
-  version: number;
+interface StoredGameV1 {
+  version: 1;
   size: number;
   structure: string;
   player: { x: number; y: number };
@@ -24,6 +24,15 @@ interface StoredGame {
   viewport: ViewportSnapshot;
   elapsedSeconds: number;
   savedAt: number;
+}
+
+interface StoredGameV2 extends Omit<StoredGameV1, 'version'> {
+  version: 2;
+  stats: {
+    moves: number | null;
+    visited: string;
+    shortestPathLength: number | null;
+  };
 }
 
 export interface RestoredGame {
@@ -34,12 +43,15 @@ export interface RestoredGame {
   pathBuffer: Map<number, Set<number>>;
   viewport: ViewportSnapshot;
   elapsedSeconds: number;
+  moves: number | null;
+  visitedCells: Set<number>;
+  shortestPathLength: number | null;
 }
 
 export type ActiveGameSnapshot = RestoredGame;
 
 export function saveActiveGame(snapshot: ActiveGameSnapshot): void {
-  const storedGame: StoredGame = {
+  const storedGame: StoredGameV2 = {
     version: SAVED_GAME_VERSION,
     size: snapshot.size,
     structure: encodeUint8Array(snapshot.structure),
@@ -48,6 +60,11 @@ export function saveActiveGame(snapshot: ActiveGameSnapshot): void {
     viewport: snapshot.viewport,
     elapsedSeconds: snapshot.elapsedSeconds,
     savedAt: Date.now(),
+    stats: {
+      moves: snapshot.moves,
+      visited: encodeUint32Array(new Uint32Array(snapshot.visitedCells)),
+      shortestPathLength: snapshot.shortestPathLength,
+    },
   };
 
   saveStorageValue(ACTIVE_GAME_KEY, JSON.stringify(storedGame));
@@ -58,7 +75,7 @@ export function loadActiveGame(): RestoredGame | null {
   if (storedValue === null) return null;
 
   try {
-    const restoredGame = parseStoredGame(JSON.parse(storedValue) as unknown);
+    const restoredGame = parseStoredGame(migrateStoredGame(JSON.parse(storedValue) as unknown));
 
     if (restoredGame) return restoredGame;
   } catch {
@@ -73,10 +90,38 @@ export function clearActiveGame(): void {
   removeStorageValue(ACTIVE_GAME_KEY);
 }
 
+function migrateStoredGame(value: unknown): unknown {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+
+  const game = value as Partial<StoredGameV1 | StoredGameV2>;
+  if (game.version !== 1) return value;
+  if (
+    typeof game.size !== 'number' ||
+    typeof game.structure !== 'string' ||
+    !game.player ||
+    typeof game.path !== 'string' ||
+    !game.viewport ||
+    typeof game.elapsedSeconds !== 'number' ||
+    typeof game.savedAt !== 'number'
+  ) {
+    return null;
+  }
+
+  return {
+    ...game,
+    version: SAVED_GAME_VERSION,
+    stats: {
+      moves: null,
+      visited: game.path,
+      shortestPathLength: null,
+    },
+  };
+}
+
 function parseStoredGame(value: unknown): RestoredGame | null {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const game = value as Partial<StoredGame>;
+  const game = value as Partial<StoredGameV2>;
   if (game.version !== SAVED_GAME_VERSION || typeof game.size !== 'number') return null;
   const size = game.size;
   if (!isValidLabyrinthSize(size)) return null;
@@ -91,11 +136,16 @@ function parseStoredGame(value: unknown): RestoredGame | null {
 
   const structure = decodeUint8Array(game.structure);
   const pathIndexes = decodeUint32Array(game.path);
-  if (!structure || !pathIndexes || structure.length !== size * size) return null;
+  const visitedIndexes =
+    typeof game.stats?.visited === 'string' ? decodeUint32Array(game.stats.visited) : null;
+  if (!structure || !pathIndexes || !visitedIndexes || structure.length !== size * size) {
+    return null;
+  }
   if ([...structure].some(border => border > 0b1111)) return null;
 
   const pathBuffer = indexesToPathBuffer(pathIndexes, size);
-  if (!pathBuffer) return null;
+  const visitedCells = indexesToSet(visitedIndexes, size);
+  if (!pathBuffer || !visitedCells || !isValidStats(game.stats)) return null;
 
   return {
     size,
@@ -105,7 +155,22 @@ function parseStoredGame(value: unknown): RestoredGame | null {
     pathBuffer,
     viewport: game.viewport,
     elapsedSeconds: game.elapsedSeconds,
+    moves: game.stats.moves,
+    visitedCells,
+    shortestPathLength: game.stats.shortestPathLength,
   };
+}
+
+function indexesToSet(indexes: Uint32Array, size: number): Set<number> | null {
+  if (indexes.length > size * size) return null;
+
+  const cells = new Set<number>();
+  for (const index of indexes) {
+    if (index >= size * size) return null;
+    cells.add(index);
+  }
+
+  return cells;
 }
 
 function pathBufferToIndexes(pathBuffer: Map<number, Set<number>>, size: number): Uint32Array {
@@ -134,6 +199,17 @@ function indexesToPathBuffer(indexes: Uint32Array, size: number): Map<number, Se
   }
 
   return pathBuffer;
+}
+
+function isValidStats(value: unknown): value is StoredGameV2['stats'] {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+
+  const stats = value as { moves?: unknown; shortestPathLength?: unknown };
+  return (
+    (stats.moves === null || (Number.isInteger(stats.moves) && (stats.moves as number) >= 0)) &&
+    (stats.shortestPathLength === null ||
+      (Number.isInteger(stats.shortestPathLength) && (stats.shortestPathLength as number) >= 0))
+  );
 }
 
 function isValidPlayer(value: unknown, size: number): value is { x: number; y: number } {
