@@ -10,6 +10,7 @@ export default defineConfig({
   plugins: [
     VitePWA({
       registerType: 'autoUpdate',
+      injectRegister: 'inline',
       manifest: {
         name: 'Labyrinth',
         short_name: 'Labyrinth',
@@ -39,6 +40,7 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,png,svg,webp}'],
+        navigateFallback: 'index.html',
       },
     }),
   ],
